@@ -138,6 +138,22 @@ function findConflicts(board) {
   return conflicts;
 }
 
+// The row, column and box a cell belongs to, each with its cells in reading order
+function unitsThrough(cellIndex) {
+  const allCells = [...Array(CELL_COUNT).keys()];
+  return [
+    { kind: "row", cells: allCells.filter((other) => rowOf(other) === rowOf(cellIndex)) },
+    { kind: "column", cells: allCells.filter((other) => columnOf(other) === columnOf(cellIndex)) },
+    { kind: "box", cells: allCells.filter((other) => boxOf(other) === boxOf(cellIndex)) },
+  ];
+}
+
+// A unit only counts as complete when every digit in it matches the solution,
+// so a lucky but wrong fill that happens to have no conflicts is not celebrated
+function completedUnitsThrough(board, solution, cellIndex) {
+  return unitsThrough(cellIndex).filter((unit) => unit.cells.every((cell) => board[cell] === solution[cell]));
+}
+
 function isSolved(board) {
   return !board.includes(EMPTY) && findConflicts(board).size === 0;
 }
