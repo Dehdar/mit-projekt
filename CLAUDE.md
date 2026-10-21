@@ -49,3 +49,7 @@ Classic scripts loaded in order from `index.html`, sharing globals (order matter
 6. `game.js` — game flow and rendering. A single `state` object (`level`, `puzzle`, `solution`, `board`, `timeLeft`, `status`: one of `STATUS`) is the source of truth and is saved as JSON, so its keys must not be renamed. Every change calls `saveGame()` then `refreshGame()` (board, stats, rotation, overlay, timer), then notifies the mascot; `refreshGameWithoutAnimation()` is used on start and reload. Rotation is derived from elapsed time (`ROTATE_EVERY_SECONDS`), not stored. The difficulty curve lives in `levelSettings(level)`.
 
 When adding a user-visible string, add it to **both** `en` and `da` (in `i18n.js`, or `LINES` in `mascot.js`).
+
+## Creative director agent
+
+`.claude/agents/creative-director.md` is a subagent that owns how engaging the game is. It preloads the project skills in `.claude/skills/`: `mochi-trash-talk`, `game-feature`, `level-design`, `playtest` and `ship-change`. The skills also work on their own in any session. Changes from the agent arrive as one pull request per idea; `main` is protected and the owner merges.
