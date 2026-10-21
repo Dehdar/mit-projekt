@@ -4,12 +4,14 @@ Small browser games written in plain HTML, CSS and JavaScript — no frameworks,
 
 | Game | Folder | Status |
 | --- | --- | --- |
-| Rotating Sudoku (*Roterende Sudoku*) | [roterende-sudoku/](roterende-sudoku/) | Playable |
+| Rotating Sudoku (*Roterende Sudoku*) | [roterende-sudoku/](roterende-sudoku/) | [Play online](https://dehdar.github.io/mit-projekt/roterende-sudoku/) |
 | Typing-speed test (*Skrivehastigheds-test*) | — | Not started |
 
 ## Rotating Sudoku
 
 A fast-paced sudoku where the board rotates 90° every 10 seconds, so you constantly have to find your bearings again.
+
+**▶ [Play it in your browser](https://dehdar.github.io/mit-projekt/roterende-sudoku/)**
 
 - **20 levels** that get harder as you go: from 44 given digits and 15 minutes on level 1 down to 24 digits and 6 minutes on level 20.
 - Every puzzle is generated fresh and is guaranteed to have exactly one solution.
