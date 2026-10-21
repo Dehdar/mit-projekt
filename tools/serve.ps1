@@ -1,7 +1,7 @@
-# Minimal statisk webserver til at prøve spillene lokalt uden at installere noget.
-# Brug: pwsh -File tools/serve.ps1 -Root roterende-sudoku -Port 5173
+# Minimal static web server for playing the game locally without installing anything.
+# Usage: pwsh -File tools/serve.ps1 [-Root .] [-Port 5173]
 param(
-  [Parameter(Mandatory)][string]$Root,
+  [string]$Root = ".",
   [int]$Port = 5173
 )
 
@@ -21,7 +21,7 @@ function Get-RequestedFile([System.Net.HttpListenerRequest]$request) {
   $relativePath = [Uri]::UnescapeDataString($request.Url.AbsolutePath.TrimStart('/'))
   if ($relativePath -eq "") { $relativePath = "index.html" }
   $fullPath = [IO.Path]::GetFullPath((Join-Path $rootPath $relativePath))
-  # Afvis stier som ../, der peger uden for roden
+  # Reject paths such as ../ that point outside the root
   $isInsideRoot = $fullPath.StartsWith($rootPath, [StringComparison]::OrdinalIgnoreCase)
   if ($isInsideRoot -and (Test-Path $fullPath -PathType Leaf)) { return $fullPath }
   return $null
@@ -32,10 +32,10 @@ function Send-File([System.Net.HttpListenerContext]$context, [string]$file) {
   $response = $context.Response
   $contentType = $contentTypes[[IO.Path]::GetExtension($file).ToLowerInvariant()]
   $response.ContentType = $(if ($contentType) { $contentType } else { "application/octet-stream" })
-  # Ingen cache, så en genindlæsning altid viser de seneste ændringer
+  # No caching, so a reload always shows the latest changes
   $response.Headers.Add("Cache-Control", "no-store")
   $response.ContentLength64 = $bytes.Length
-  # Et HEAD-svar må ikke have en krop
+  # A HEAD response must not have a body
   if ($context.Request.HttpMethod -ne "HEAD") { $response.OutputStream.Write($bytes, 0, $bytes.Length) }
 }
 
@@ -48,12 +48,12 @@ function Send-Response([System.Net.HttpListenerContext]$context) {
 $listener = [System.Net.HttpListener]::new()
 $listener.Prefixes.Add("http://localhost:$Port/")
 $listener.Start()
-Write-Host "Serverer $rootPath via http://localhost:$Port/"
+Write-Host "Serving $rootPath on http://localhost:$Port/"
 
 try {
   while ($listener.IsListening) {
     $context = $listener.GetContext()
-    # En afbrudt forbindelse må ikke lukke hele serveren
+    # A dropped connection must not stop the whole server
     try { Send-Response $context }
     catch { Write-Warning "$($context.Request.Url): $_" }
     finally { $context.Response.Close() }

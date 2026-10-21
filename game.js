@@ -1,4 +1,4 @@
-// Roterende Sudoku: brættet roterer hvert 10. sekund. Løs det, før tiden løber ud.
+// Rotating Sudoku: the board rotates every 10 seconds. Solve it before the time runs out.
 
 const LEVEL_COUNT = 20;
 const FIRST_LEVEL = 1;
@@ -6,7 +6,7 @@ const ROTATE_EVERY_SECONDS = 10;
 const TIME_WARNING_SECONDS = 60;
 const TICK_MS = 1000;
 const SECONDS_PER_MINUTE = 60;
-const SAVE_KEY = "roterende-sudoku";
+const SAVE_KEY = "rotating-sudoku";
 
 const EASIEST_LEVEL = { clues: 44, minutes: 15 };
 const HARDEST_LEVEL = { clues: 24, minutes: 6 };
@@ -15,7 +15,7 @@ const TIME_STEP_SECONDS = 30;
 const STATUS = Object.freeze({ PLAYING: "playing", WON: "won", LOST: "lost", FINISHED: "finished" });
 const ERASE_KEYS = ["Backspace", "Delete", "0"];
 
-// Sværhedsgraden glider jævnt fra første til sidste level
+// Difficulty slides evenly from the first to the last level
 function levelSettings(level) {
   const progress = (level - FIRST_LEVEL) / (LEVEL_COUNT - FIRST_LEVEL);
   const minutes = interpolate(EASIEST_LEVEL.minutes, HARDEST_LEVEL.minutes, progress);
@@ -33,9 +33,9 @@ function roundToStep(value, step) {
   return Math.round(value / step) * step;
 }
 
-// ---------- Spillets tilstand ----------
+// ---------- Game state ----------
 
-// { level, puzzle, solution, board, timeLeft, status }. Gemmes som JSON, så nøglerne må ikke omdøbes.
+// { level, puzzle, solution, board, timeLeft, status }. Saved as JSON, so the keys must not be renamed.
 let state = null;
 let selectedCellIndex = null;
 let countdownTimer = null;
@@ -74,7 +74,7 @@ function resumeOrStartGame() {
     return;
   }
   state = saved;
-  if (state.solution?.length !== CELL_COUNT) state.solution = solvePuzzle(state.puzzle); // ældre gemte spil
+  if (state.solution?.length !== CELL_COUNT) state.solution = solvePuzzle(state.puzzle); // older saves
   refreshGameWithoutAnimation();
   mochi(state.status === STATUS.PLAYING ? "start" : state.status);
 }
@@ -152,7 +152,7 @@ function mochiReactionTo(digit) {
   return digit === state.solution[selectedCellIndex] ? "right" : "wrong";
 }
 
-// ---------- Visning ----------
+// ---------- Rendering ----------
 
 const boardEl = document.getElementById("board");
 const overlayEl = document.getElementById("overlay");
@@ -171,7 +171,7 @@ function createCellsOnBoard() {
   });
 }
 
-// Tykke streger mellem 3x3-boksene, men ingen ved brættets kant, hvor rammen allerede tegner en
+// Thick lines between the 3x3 boxes, but none at the board edge, where the frame already draws one
 function borderClassesFor(cellIndex) {
   const lastIndex = BOARD_SIZE - 1;
   const classes = [];
@@ -192,7 +192,7 @@ function refreshGame() {
   syncTimerWithStatus();
 }
 
-// Ved start og genindlæsning skal brættet stå rigtigt med det samme i stedet for at dreje på plads
+// On start and reload the board must be in place at once instead of rotating into position
 function refreshGameWithoutAnimation() {
   boardEl.classList.add("no-anim");
   refreshGame();
@@ -249,7 +249,7 @@ function renderOverlay() {
   button.onclick = screen.action;
 }
 
-// Mens man spiller, er der intet overlay
+// While playing there is no overlay
 function overlayScreenFor(status) {
   const screens = {
     [STATUS.LOST]: {
@@ -309,5 +309,5 @@ document.getElementById("lang").addEventListener("click", switchLanguage);
 // ---------- Start ----------
 
 createNumpadButtons();
-translatePage(); // Slet-knappen findes først nu
+translatePage(); // the Erase button only exists now
 resumeOrStartGame();

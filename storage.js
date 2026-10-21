@@ -1,4 +1,4 @@
-// localStorage kan være slået fra (privat vindue, blokerede cookies), og så skal spillet stadig virke.
+// localStorage can be disabled (private window, blocked cookies), and the game must still work.
 
 function readStorage(key) {
   try {

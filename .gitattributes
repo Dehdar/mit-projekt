@@ -1,4 +1,4 @@
-# Ens linjeskift i repoet, uanset styresystem
+# Same line endings in the repo on every operating system
 * text=auto eol=lf
 
 *.png binary

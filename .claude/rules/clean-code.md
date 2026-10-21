@@ -13,5 +13,5 @@ All code follows Robert C. Martin's *Clean Code*. In practice here:
 - **No hidden side effects.** A function that looks like a query does not also change state; one that changes state says so in its name.
 - **No magic numbers.** Use named constants instead of bare literals (as with `LEVEL_COUNT`, `ROTATE_EVERY_SECONDS`, `IDLE_LIMIT_SECONDS`; in C#, `const` or `static readonly`).
 - **DRY.** Extract duplicated logic instead of copying it, but don't build abstractions for a single use.
-- **Comments explain *why*, not *what*.** If code needs a comment to explain what it does, rename or extract instead. Comments that remain are written in Danish (see CLAUDE.md).
+- **Comments explain *why*, not *what*.** If code needs a comment to explain what it does, rename or extract instead. Comments that remain are written in English.
 - **Boy Scout Rule.** Leave the code you touch a little cleaner than you found it, but keep it to the code involved in the task. Don't do large unrequested refactors.

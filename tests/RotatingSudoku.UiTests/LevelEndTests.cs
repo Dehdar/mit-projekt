@@ -1,6 +1,6 @@
-using RoterendeSudoku.UiTests.Support;
+using RotatingSudoku.UiTests.Support;
 
-namespace RoterendeSudoku.UiTests;
+namespace RotatingSudoku.UiTests;
 
 [Parallelizable(ParallelScope.Self)]
 public class LevelEndTests : SudokuTest
@@ -16,7 +16,7 @@ public class LevelEndTests : SudokuTest
 
         await SolveLastCellAsync();
 
-        await Expect(Game.Heading("Level 1 klaret!")).ToBeVisibleAsync();
+        await Expect(Game.Heading("Level 1 complete!")).ToBeVisibleAsync();
     }
 
     [Test]
@@ -25,7 +25,7 @@ public class LevelEndTests : SudokuTest
         await Game.OpenAsync(OneCellFromSolved);
         await SolveLastCellAsync();
 
-        await Game.Button("Næste level").ClickAsync();
+        await Game.Button("Next level").ClickAsync();
 
         await Expect(Game.Text("2 / 20")).ToBeVisibleAsync();
     }
@@ -37,7 +37,7 @@ public class LevelEndTests : SudokuTest
 
         await SolveLastCellAsync();
 
-        await Expect(Game.Heading("Du klarede alle 20 levels!")).ToBeVisibleAsync();
+        await Expect(Game.Heading("You beat all 20 levels!")).ToBeVisibleAsync();
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class LevelEndTests : SudokuTest
         await Game.OpenAsync(OneCellFromSolved with { Level = LastLevel, TimeLeft = 300 });
         await SolveLastCellAsync();
 
-        await Game.Button("Spil igen").ClickAsync();
+        await Game.Button("Play again").ClickAsync();
 
         await Expect(Game.Text("1 / 20")).ToBeVisibleAsync();
     }
@@ -67,7 +67,7 @@ public class LevelEndTests : SudokuTest
         await Game.OpenAsync(new SavedGame { TimeLeft = 1 });
         await Game.WaitSecondsAsync(1);
 
-        await Game.Button("Prøv igen").ClickAsync();
+        await Game.Button("Try again").ClickAsync();
 
         await Expect(Game.Text("1 / 20")).ToBeVisibleAsync();
         await Expect(Game.Text("15:00")).ToBeVisibleAsync();

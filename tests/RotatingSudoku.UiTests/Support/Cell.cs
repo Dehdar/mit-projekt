@@ -1,4 +1,4 @@
-namespace RoterendeSudoku.UiTests.Support;
+namespace RotatingSudoku.UiTests.Support;
 
 internal readonly record struct Cell(int Row, int Column)
 {

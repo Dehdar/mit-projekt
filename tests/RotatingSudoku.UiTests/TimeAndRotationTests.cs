@@ -1,13 +1,13 @@
-using RoterendeSudoku.UiTests.Support;
+using RotatingSudoku.UiTests.Support;
 
-namespace RoterendeSudoku.UiTests;
+namespace RotatingSudoku.UiTests;
 
 [Parallelizable(ParallelScope.Self)]
 public class TimeAndRotationTests : SudokuTest
 {
     private const string WarningRed = "rgb(220, 38, 38)";
 
-    // En kvart omgang med uret: cos(90°) er næsten 0, sin(90°) er 1
+    // A quarter turn clockwise: cos(90°) is almost 0, sin(90°) is 1
     private static readonly Regex QuarterTurn = new(@"^matrix\([^,]+, 1, -1, [^,]+, 0, 0\)$");
 
     [Test]

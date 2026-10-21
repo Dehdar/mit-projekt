@@ -1,6 +1,6 @@
 using Microsoft.Playwright;
 
-namespace RoterendeSudoku.UiTests.Support;
+namespace RotatingSudoku.UiTests.Support;
 
 internal sealed class SudokuPage(IPage page)
 {
@@ -43,14 +43,14 @@ internal sealed class SudokuPage(IPage page)
     public async Task ResetAndConfirmAsync()
     {
         page.Dialog += AcceptDialog;
-        await Button("Nulstil spil").ClickAsync();
+        await Button("Reset game").ClickAsync();
         page.Dialog -= AcceptDialog;
     }
 
     public async Task ResetAndCancelAsync()
     {
         page.Dialog += DismissDialog;
-        await Button("Nulstil spil").ClickAsync();
+        await Button("Reset game").ClickAsync();
         page.Dialog -= DismissDialog;
     }
 

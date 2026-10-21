@@ -1,6 +1,6 @@
-using RoterendeSudoku.UiTests.Support;
+using RotatingSudoku.UiTests.Support;
 
-namespace RoterendeSudoku.UiTests;
+namespace RotatingSudoku.UiTests;
 
 [Parallelizable(ParallelScope.Self)]
 public class ProgressTests : SudokuTest

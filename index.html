@@ -1,26 +1,26 @@
 <!doctype html>
-<html lang="da">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Roterende Sudoku</title>
+  <title>Rotating Sudoku</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main>
     <header>
       <div class="topbar">
-        <button id="lang" class="secondary" data-i18n="otherLang">English</button>
+        <button id="lang" class="secondary" data-i18n="otherLang">Dansk</button>
       </div>
-      <h1 data-i18n="title">Roterende Sudoku</h1>
+      <h1 data-i18n="title">Rotating Sudoku</h1>
       <div class="stats">
         <div class="stat"><span class="label" data-i18n="level">Level</span><span id="level">1 / 20</span></div>
-        <div class="stat" id="time-stat"><span class="label" data-i18n="timeLeft">Tid tilbage</span><span id="time">15:00</span></div>
-        <div class="stat"><span class="label" data-i18n="rotatesIn">Roterer om</span><span id="rotate">10 s</span></div>
+        <div class="stat" id="time-stat"><span class="label" data-i18n="timeLeft">Time left</span><span id="time">15:00</span></div>
+        <div class="stat"><span class="label" data-i18n="rotatesIn">Rotates in</span><span id="rotate">10 s</span></div>
       </div>
     </header>
 
-    <!-- Mochi, katten der kommenterer (og forstyrrer) mens man spiller -->
+    <!-- Mochi, the cat who comments on (and disrupts) your game -->
     <div id="mascot" data-mood="curious">
       <div class="mascot-art" aria-hidden="true">
         <svg class="mood mood-curious" viewBox="0 0 240 240">
@@ -159,7 +159,7 @@
     </div>
 
     <div id="numpad"></div>
-    <button id="reset" class="secondary" data-i18n="reset">Nulstil spil</button>
+    <button id="reset" class="secondary" data-i18n="reset">Reset game</button>
   </main>
   <script src="storage.js"></script>
   <script src="dom.js"></script>

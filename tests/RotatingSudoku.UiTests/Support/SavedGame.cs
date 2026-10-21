@@ -1,13 +1,13 @@
 using System.Text.Json;
 
-namespace RoterendeSudoku.UiTests.Support;
+namespace RotatingSudoku.UiTests.Support;
 
-// Et kendt bræt, så testene ikke afhænger af de tilfældigt genererede opgaver
+// A known board, so the tests do not depend on randomly generated puzzles
 internal sealed record SavedGame
 {
     public const int LevelOneSeconds = 15 * 60;
 
-    private const string StorageKey = "roterende-sudoku";
+    private const string StorageKey = "rotating-sudoku";
     private const int Empty = 0;
 
     private static readonly int[] Solution = ParseRows(
@@ -24,13 +24,13 @@ internal sealed record SavedGame
     public int Level { get; init; } = 1;
     public int TimeLeft { get; init; } = LevelOneSeconds;
 
-    // To tomme felter som standard, så ét indtastet tal ikke løser brættet
+    // Two empty cells by default, so entering one digit does not solve the board
     public IReadOnlyList<Cell> EmptyCells { get; init; } = [Cell.TopLeft, Cell.BottomRight];
 
     public static int SolutionAt(Cell cell) => Solution[cell.Index];
 
-    // Init-scripts kører ved hver indlæsning, så gemningen må kun lægges ind første gang,
-    // ellers ville en genindlæsning overskrive spillerens fremskridt
+    // Init scripts run on every load, so the save may only be seeded the first time,
+    // otherwise a reload would overwrite the player's progress
     public string ToInitScript()
     {
         var json = JsonSerializer.Serialize(ToSaveData());

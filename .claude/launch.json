@@ -4,7 +4,7 @@
     {
       "name": "sudoku",
       "runtimeExecutable": "pwsh",
-      "runtimeArgs": ["-NoProfile", "-File", "tools/serve.ps1", "-Root", "roterende-sudoku", "-Port", "5173"],
+      "runtimeArgs": ["-NoProfile", "-File", "tools/serve.ps1", "-Port", "5173"],
       "port": 5173
     }
   ]

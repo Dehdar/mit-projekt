@@ -96,7 +96,7 @@ h1 {
   color: var(--conflict);
 }
 
-/* Brættet */
+/* Board */
 
 .board-wrap {
   position: relative;
@@ -128,7 +128,7 @@ h1 {
   user-select: none;
 }
 
-/* Tallene drejer modsat brættet, så de altid står lige */
+/* The digits rotate opposite to the board so they always stay upright */
 .cell span {
   transform: rotate(calc(var(--rot) * -90deg));
   transition: transform var(--rotate-duration) ease;
@@ -156,7 +156,7 @@ h1 {
 .cell.conflict { color: var(--conflict); }
 .cell.conflict:not(.selected) { background: var(--conflict-bg); }
 
-/* Overlay ved game over og level klaret */
+/* Overlay for game over and level complete */
 
 #overlay {
   position: absolute;
@@ -190,7 +190,7 @@ h1 {
   color: var(--muted);
 }
 
-/* Knapper */
+/* Buttons */
 
 button {
   font: inherit;
@@ -271,7 +271,7 @@ button.secondary {
   line-height: 1.35;
 }
 
-/* Hale på taleboblen, der peger mod Mochi */
+/* Speech bubble tail pointing at Mochi */
 #mascot-bubble::before {
   content: "";
   position: absolute;
@@ -342,7 +342,7 @@ button.secondary {
 }
 @keyframes m-bubble { 0% { transform: scale(0.85); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
 
-/* Mochi skubber til brættet */
+/* Mochi shoves the board */
 
 .mascot-art.push { animation: m-push 0.5s ease-in-out; }
 .board-wrap.shake { animation: m-shake 0.45s ease-out 0.15s; }
@@ -362,7 +362,7 @@ button.secondary {
   80% { transform: translate(-1px, 0) rotate(0); }
 }
 
-/* Sprogknap */
+/* Language button */
 
 header {
   width: min(100%, var(--content-width));

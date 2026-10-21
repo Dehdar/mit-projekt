@@ -1,29 +1,29 @@
-using RoterendeSudoku.UiTests.Support;
+using RotatingSudoku.UiTests.Support;
 
-namespace RoterendeSudoku.UiTests;
+namespace RotatingSudoku.UiTests;
 
 [Parallelizable(ParallelScope.Self)]
 public class LanguageTests : SudokuTest
 {
     [Test]
-    public async Task EnglishButtonTranslatesThePage()
+    public async Task DanishButtonTranslatesThePageButKeepsTheGameName()
     {
         await Game.OpenAsync(new SavedGame());
 
-        await Game.Button("English").ClickAsync();
+        await Game.Button("Dansk").ClickAsync();
 
+        await Expect(Game.Button("Slet")).ToBeVisibleAsync();
         await Expect(Game.Heading("Rotating Sudoku")).ToBeVisibleAsync();
-        await Expect(Game.Button("Erase")).ToBeVisibleAsync();
     }
 
     [Test]
     public async Task ChosenLanguageIsRememberedAfterReloading()
     {
         await Game.OpenAsync(new SavedGame());
-        await Game.Button("English").ClickAsync();
+        await Game.Button("Dansk").ClickAsync();
 
         await Game.ReloadAsync();
 
-        await Expect(Game.Heading("Rotating Sudoku")).ToBeVisibleAsync();
+        await Expect(Game.Button("Slet")).ToBeVisibleAsync();
     }
 }

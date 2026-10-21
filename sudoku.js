@@ -1,5 +1,5 @@
-// Ren sudoku-logik uden noget med siden at gøre.
-// Et bræt er et array med 81 tal, række for række, hvor 0 er et tomt felt.
+// Pure sudoku logic with nothing to do with the page.
+// A board is an array of 81 numbers, row by row, where 0 is an empty cell.
 
 const BOARD_SIZE = 9;
 const BOX_SIZE = 3;
@@ -33,7 +33,7 @@ function shuffleInPlace(list) {
   return list;
 }
 
-// Kører tit under generering af opgaver, så den tjekker række, kolonne og boks i ét gennemløb
+// Runs often while generating puzzles, so it checks row, column and box in a single pass
 function canPlaceDigit(grid, cellIndex, digit) {
   const row = rowOf(cellIndex);
   const column = columnOf(cellIndex);
@@ -52,7 +52,7 @@ function candidatesFor(grid, cellIndex) {
   return DIGITS.filter((digit) => canPlaceDigit(grid, cellIndex, digit));
 }
 
-// Backtracking med tilfældig rækkefølge, så hvert bræt bliver forskelligt
+// Backtracking in random order, so every board is different
 function fillEmptyCellsRandomly(grid) {
   const cellIndex = grid.indexOf(EMPTY);
   if (cellIndex === -1) return true;
@@ -65,7 +65,7 @@ function fillEmptyCellsRandomly(grid) {
   return false;
 }
 
-// Feltet med færrest muligheder giver det mindste søgetræ. Har et felt ingen muligheder, er brættet uløseligt.
+// The cell with the fewest candidates gives the smallest search tree. A cell with no candidates means the board is unsolvable.
 function findMostConstrainedEmptyCell(grid) {
   let mostConstrained = null;
   for (let cellIndex = 0; cellIndex < CELL_COUNT; cellIndex++) {
@@ -79,7 +79,7 @@ function findMostConstrainedEmptyCell(grid) {
   return mostConstrained;
 }
 
-// Stopper ved limit, fordi vi kun skal vide, om der er præcis én løsning
+// Stops at limit, because we only need to know whether there is exactly one solution
 function countSolutions(grid, limit) {
   const target = findMostConstrainedEmptyCell(grid);
   if (!target) return 1;
@@ -103,7 +103,7 @@ function createSolvedGrid() {
   return grid;
 }
 
-// Et tal fjernes kun, hvis opgaven stadig har én løsning, så clueCount er et mål og ikke en garanti
+// A digit is only removed if the puzzle still has one solution, so clueCount is a target, not a guarantee
 function makePuzzle(clueCount) {
   const puzzle = createSolvedGrid();
   let filledCount = CELL_COUNT;
@@ -117,7 +117,7 @@ function makePuzzle(clueCount) {
   return puzzle;
 }
 
-// Opgaven har kun én løsning, så første gyldige udfyldning er den rigtige
+// The puzzle has only one solution, so the first valid fill is the right one
 function solvePuzzle(puzzle) {
   const solution = [...puzzle];
   fillEmptyCellsRandomly(solution);

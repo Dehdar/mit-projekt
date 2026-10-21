@@ -1,5 +1,5 @@
-// Browseren slår stilændringer i samme frame sammen. Uden en reflow imellem
-// opdager den ikke, at en klasse er fjernet og tilføjet igen, og animationen starter ikke forfra.
+// The browser batches style changes within a frame. Without a reflow in between
+// it does not notice that a class was removed and added again, so the animation does not restart.
 function forceReflow(element) {
   void element.offsetWidth;
 }

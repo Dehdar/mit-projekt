@@ -1,7 +1,7 @@
-// Mochi, katten der driller en, mens man spiller.
-// Hun er nysgerrig, mens man kigger, chokeret når man rammer rigtigt,
-// og taler skrald når man laver fejl eller er for langsom.
-// Nogle gange giver hun brættet et skub, så det ryster.
+// Mochi, the cat who teases you while you play.
+// She is curious while you look, shocked when you get it right,
+// and talks trash when you make mistakes or are too slow.
+// Sometimes she gives the board a shove so it shakes.
 
 const IDLE_LIMIT_SECONDS = 15;
 const IDLE_CHECK_INTERVAL_MS = 1000;
@@ -10,7 +10,7 @@ const PUSH_CHANCE = 0.3;
 const COMMENT_CHANCE = 0.5;
 const RESTING_MOOD = "curious";
 
-// Begivenheder, der sker så tit, at hun kun kommenterer nogle af dem
+// Events that happen so often that she only comments on some of them
 const FREQUENT_EVENTS = ["select", "rotate"];
 const PROVOKING_EVENTS = ["slow", "wrong"];
 const PLAYER_ACTION_EVENTS = ["right", "wrong", "erase", "start"];
@@ -157,7 +157,7 @@ const LINES = {
   },
 };
 
-// Hvilket ansigt hører til hvilken begivenhed
+// Which face belongs to which event
 const MOODS = {
   wrong: "trash", slow: "trash", push: "trash", erase: "trash", rotate: "trash", lost: "trash", start: "trash",
   right: "shocked", won: "shocked", finished: "shocked",
@@ -173,7 +173,7 @@ let calmDownTimer = null;
 let idleSeconds = 0;
 let isGameRunning = false;
 
-// Kaldes fra spillet: "select", "right", "wrong", "erase", "rotate", "start", "won", "finished", "lost"
+// Called from the game: "select", "right", "wrong", "erase", "rotate", "start", "won", "finished", "lost"
 function mochi(event) {
   trackGameProgress(event);
   if (wantsToComment(event)) react(maybeEscalateToPush(event));
@@ -185,7 +185,7 @@ function trackGameProgress(event) {
   if (PLAYER_ACTION_EVENTS.includes(event)) idleSeconds = 0;
 }
 
-// Hun gider ikke kommentere hvert eneste klik
+// She cannot be bothered to comment on every single click
 function wantsToComment(event) {
   return !FREQUENT_EVENTS.includes(event) || Math.random() < COMMENT_CHANCE;
 }
@@ -199,7 +199,7 @@ function react(event) {
   clearTimeout(calmDownTimer);
   setMood(MOODS[event]);
   say(pickLine(event));
-  // Efter spillets slutning bliver hun i sin reaktion
+  // After the game ends she stays in her reaction
   if (isGameRunning) calmDownTimer = setTimeout(calmDown, REACTION_DURATION_MS);
 }
 
@@ -208,7 +208,7 @@ function calmDown() {
   say("");
 }
 
-// Vælger en anden replik end sidst, så hun ikke gentager sig selv
+// Picks a different line than last time so she does not repeat herself
 function pickLine(event) {
   const lines = LINES[currentLanguage][event];
   const freshLines = lines.filter((line) => line !== lastLine);
@@ -216,7 +216,7 @@ function pickLine(event) {
   return lastLine;
 }
 
-// Stemningen nulstilles først, så ansigtets animation starter forfra
+// The mood is cleared first so the face animation restarts
 function setMood(mood) {
   mascotEl.dataset.mood = "";
   forceReflow(mascotEl);
@@ -233,7 +233,7 @@ function shoveBoard() {
   restartAnimation(boardWrapEl, "shake");
 }
 
-// Når sproget skiftes, skal hun ikke blive ved med at tale på det gamle sprog
+// When the language changes she must not keep talking in the old language
 function silenceMochi() {
   say("");
 }

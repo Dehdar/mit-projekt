@@ -1,10 +1,10 @@
-// Tekster på dansk og engelsk. Det valgte sprog huskes mellem besøg.
+// Texts in English and Danish. The chosen language is remembered between visits.
 
-const LANGUAGE_STORAGE_KEY = "roterende-sudoku-lang";
+const LANGUAGE_STORAGE_KEY = "rotating-sudoku-language";
 
 const TRANSLATIONS = {
   da: {
-    title: "Roterende Sudoku",
+    title: "Rotating Sudoku",
     level: "Level",
     timeLeft: "Tid tilbage",
     rotatesIn: "Roterer om",
@@ -43,16 +43,16 @@ const TRANSLATIONS = {
   },
 };
 
-let currentLanguage = readStorage(LANGUAGE_STORAGE_KEY) === "en" ? "en" : "da";
+let currentLanguage = readStorage(LANGUAGE_STORAGE_KEY) === "da" ? "da" : "en";
 
-// Nogle tekster er funktioner, fordi de indeholder tal som level eller tid
+// Some texts are functions because they contain numbers such as the level or time
 function translate(key, ...args) {
   const text = TRANSLATIONS[currentLanguage][key];
   return typeof text === "function" ? text(...args) : text;
 }
 
 function toggleLanguage() {
-  currentLanguage = currentLanguage === "da" ? "en" : "da";
+  currentLanguage = currentLanguage === "en" ? "da" : "en";
   writeStorage(LANGUAGE_STORAGE_KEY, currentLanguage);
   translatePage();
 }

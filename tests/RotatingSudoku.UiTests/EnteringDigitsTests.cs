@@ -1,6 +1,6 @@
-using RoterendeSudoku.UiTests.Support;
+using RotatingSudoku.UiTests.Support;
 
-namespace RoterendeSudoku.UiTests;
+namespace RotatingSudoku.UiTests;
 
 [Parallelizable(ParallelScope.Self)]
 public class EnteringDigitsTests : SudokuTest
@@ -33,7 +33,7 @@ public class EnteringDigitsTests : SudokuTest
         await Game.OpenAsync(new SavedGame());
         await Game.EnterDigitAsync(Cell.TopLeft, 5);
 
-        await Game.Button("Slet").ClickAsync();
+        await Game.Button("Erase").ClickAsync();
 
         await Expect(Game.CellAt(Cell.TopLeft)).ToHaveTextAsync("");
     }

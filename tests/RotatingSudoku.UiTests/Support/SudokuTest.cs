@@ -1,13 +1,13 @@
 using System.Globalization;
 using Microsoft.Playwright;
 
-namespace RoterendeSudoku.UiTests.Support;
+namespace RotatingSudoku.UiTests.Support;
 
-// Fælles opsætning, der gør hver test gentagelig: fast tid og fast "tilfældighed"
+// Shared setup that makes every test repeatable: fixed time and fixed "randomness"
 public abstract class SudokuTest : PageTest
 {
-    // Mochi kommenterer, når Math.random() < 0.5, og skubber, når den er < 0.3,
-    // så 0.4 får hende til altid at kommentere, men aldrig skubbe
+    // Mochi comments when Math.random() < 0.5 and shoves when it is < 0.3,
+    // so 0.4 makes her always comment but never shove
     private const double FixedRandomValue = 0.4;
 
     private static readonly DateTime StartTime = new(2026, 1, 1, 12, 0, 0);
