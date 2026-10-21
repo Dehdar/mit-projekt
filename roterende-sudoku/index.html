@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roterende Sudoku</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div class="topbar">
+        <button id="lang" class="secondary" data-i18n="otherLang">English</button>
+      </div>
+      <h1 data-i18n="title">Roterende Sudoku</h1>
+      <div class="stats">
+        <div class="stat"><span class="label" data-i18n="level">Level</span><span id="level">1 / 20</span></div>
+        <div class="stat" id="time-stat"><span class="label" data-i18n="timeLeft">Tid tilbage</span><span id="time">15:00</span></div>
+        <div class="stat"><span class="label" data-i18n="rotatesIn">Roterer om</span><span id="rotate">10 s</span></div>
+      </div>
+    </header>
+
+    <!-- Mochi, katten der kommenterer (og forstyrrer) mens man spiller -->
+    <div id="mascot" data-mood="curious">
+      <div class="mascot-art" aria-hidden="true">
+        <svg class="mood mood-curious" viewBox="0 0 240 240">
+          <g class="m-q">
+            <text x="200" y="58" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="40" fill="#2A2230">?</text>
+            <circle cx="178" cy="78" r="4" fill="#2A2230"></circle>
+            <circle cx="168" cy="92" r="3" fill="#2A2230"></circle>
+          </g>
+          <g class="m-head">
+            <g transform="rotate(-10 120 150)">
+              <g stroke="#2A2230" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M56 118 L64 62 L104 96 Z" fill="#FFFFFF"></path>
+                <path d="M184 118 L176 62 L136 96 Z" fill="#FFFFFF"></path>
+                <path d="M190 176 C216 172 224 146 208 136" fill="none"></path>
+                <ellipse cx="120" cy="152" rx="86" ry="66" fill="#FFFFFF"></ellipse>
+                <ellipse cx="96" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
+                <ellipse cx="150" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
+              </g>
+              <path d="M68 76 L74 100 L90 94 Z" fill="#F49FB0"></path>
+              <path d="M172 76 L166 100 L150 94 Z" fill="#F49FB0"></path>
+              <ellipse cx="80" cy="168" rx="11" ry="6" fill="#F49FB0"></ellipse>
+              <ellipse cx="160" cy="168" rx="11" ry="6" fill="#F49FB0"></ellipse>
+              <g fill="none" stroke="#2A2230" stroke-width="4" stroke-linecap="round">
+                <path d="M84 144 L106 146"></path>
+                <path d="M84 130 L106 136"></path>
+                <path d="M134 126 Q146 120 158 126"></path>
+                <path d="M112 172 Q120 168 128 172"></path>
+              </g>
+              <g class="m-look">
+                <circle cx="146" cy="142" r="11" fill="#2A2230"></circle>
+                <circle cx="150" cy="137" r="3.5" fill="#FFFFFF"></circle>
+              </g>
+              <path d="M115 157 L125 157 L120 162 Z" fill="#F07C98"></path>
+              <g stroke="#2A2230" stroke-width="3" stroke-linecap="round">
+                <path d="M56 156 L34 150"></path>
+                <path d="M56 166 L34 170"></path>
+                <path d="M184 156 L206 150"></path>
+              </g>
+              <path d="M118 206 C108 196 112 180 126 180 C140 180 146 194 140 204 C134 212 124 212 118 206 Z" fill="#FFFFFF" stroke="#2A2230" stroke-width="4" stroke-linejoin="round"></path>
+              <path d="M124 186 L122 193 M133 186 L133 193" stroke="#2A2230" stroke-width="3" stroke-linecap="round"></path>
+            </g>
+          </g>
+        </svg>
+
+        <svg class="mood mood-shocked" viewBox="0 0 240 240">
+          <g class="m-lines" stroke="#2A2230" stroke-width="4" stroke-linecap="round">
+            <path d="M28 60 L42 74"></path>
+            <path d="M20 92 L38 96"></path>
+            <path d="M212 60 L198 74"></path>
+            <path d="M220 92 L202 96"></path>
+            <path d="M120 18 L120 36"></path>
+          </g>
+          <g class="m-jump">
+            <g stroke="#2A2230" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M58 116 L62 48 L104 94 Z" fill="#FFFFFF"></path>
+              <path d="M182 116 L178 48 L136 94 Z" fill="#FFFFFF"></path>
+              <path d="M190 178 L208 168 L204 186 L222 180" fill="none"></path>
+              <ellipse cx="120" cy="150" rx="84" ry="70" fill="#FFFFFF"></ellipse>
+              <ellipse cx="92" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
+              <ellipse cx="148" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
+              <circle cx="94" cy="140" r="17" fill="#FFFFFF"></circle>
+              <circle cx="146" cy="140" r="17" fill="#FFFFFF"></circle>
+            </g>
+            <path d="M66 64 L68 98 L90 92 Z" fill="#F49FB0"></path>
+            <path d="M174 64 L172 98 L150 92 Z" fill="#F49FB0"></path>
+            <circle cx="94" cy="140" r="5" fill="#2A2230"></circle>
+            <circle cx="146" cy="140" r="5" fill="#2A2230"></circle>
+            <ellipse cx="78" cy="170" rx="10" ry="6" fill="#F49FB0"></ellipse>
+            <ellipse cx="162" cy="170" rx="10" ry="6" fill="#F49FB0"></ellipse>
+            <path d="M115 160 L125 160 L120 165 Z" fill="#F07C98"></path>
+            <ellipse cx="120" cy="184" rx="11" ry="14" fill="#2A2230" stroke="#2A2230" stroke-width="4"></ellipse>
+            <ellipse cx="120" cy="190" rx="6" ry="5" fill="#F07C98"></ellipse>
+            <g stroke="#2A2230" stroke-width="3" stroke-linecap="round">
+              <path d="M56 154 L32 146"></path>
+              <path d="M56 166 L32 168"></path>
+              <path d="M184 154 L208 146"></path>
+              <path d="M184 166 L208 168"></path>
+            </g>
+            <path class="m-sweat" d="M186 96 C180 108 178 114 184 118 C190 122 196 114 186 96 Z" fill="#9AD4F5" stroke="#2A2230" stroke-width="3" stroke-linejoin="round"></path>
+          </g>
+        </svg>
+
+        <svg class="mood mood-trash" viewBox="0 0 240 240">
+          <g class="m-pop">
+            <path d="M150 22 L222 22 Q232 22 232 32 L232 62 Q232 72 222 72 L178 72 L164 86 L166 72 L150 72 Q140 72 140 62 L140 32 Q140 22 150 22 Z" fill="#FFFFFF" stroke="#2A2230" stroke-width="4" stroke-linejoin="round"></path>
+            <text x="186" y="55" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="24" fill="#2A2230">#@%!</text>
+          </g>
+          <g class="m-rock">
+            <g stroke="#2A2230" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M48 124 L54 72 L98 100 Z" fill="#FFFFFF"></path>
+              <path d="M176 108 L184 60 L142 92 Z" fill="#FFFFFF"></path>
+              <path d="M40 178 C14 176 8 150 24 140" fill="none"></path>
+              <ellipse cx="116" cy="154" rx="84" ry="66" fill="#FFFFFF"></ellipse>
+              <ellipse cx="88" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
+              <ellipse cx="144" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
+            </g>
+            <path d="M58 86 L62 110 L84 102 Z" fill="#F49FB0"></path>
+            <path d="M176 74 L170 98 L152 92 Z" fill="#F49FB0"></path>
+            <ellipse cx="74" cy="170" rx="11" ry="6" fill="#F49FB0"></ellipse>
+            <ellipse cx="156" cy="170" rx="11" ry="6" fill="#F49FB0"></ellipse>
+            <path d="M80 150 Q94 148 108 150 Q100 160 88 158 Z" fill="#2A2230"></path>
+            <path d="M126 148 Q140 146 154 148 Q146 158 134 156 Z" fill="#2A2230"></path>
+            <circle cx="102" cy="152" r="2" fill="#FFFFFF"></circle>
+            <circle cx="148" cy="150" r="2" fill="#FFFFFF"></circle>
+            <g fill="none" stroke="#2A2230" stroke-width="4" stroke-linecap="round">
+              <path d="M78 150 L110 150"></path>
+              <path d="M124 148 L156 148"></path>
+              <path d="M82 134 L106 138"></path>
+              <path class="m-brow" d="M126 128 Q140 120 154 128"></path>
+              <path d="M104 176 Q118 182 134 170"></path>
+            </g>
+            <path d="M111 163 L121 163 L116 168 Z" fill="#F07C98"></path>
+            <g stroke="#2A2230" stroke-width="3" stroke-linecap="round">
+              <path d="M52 158 L30 152"></path>
+              <path d="M52 168 L30 172"></path>
+            </g>
+            <g class="m-paw">
+              <path d="M158 196 C150 184 154 168 168 166 C182 164 192 176 186 190 C182 200 166 204 158 196 Z" fill="#FFFFFF" stroke="#2A2230" stroke-width="4" stroke-linejoin="round"></path>
+              <path d="M166 172 L164 180 M176 170 L176 178" stroke="#2A2230" stroke-width="3" stroke-linecap="round"></path>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <p id="mascot-bubble" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="board-wrap">
+      <div id="board" data-testid="board"></div>
+      <div id="overlay" hidden>
+        <div class="overlay-box">
+          <h2 id="overlay-title"></h2>
+          <p id="overlay-text"></p>
+          <button id="overlay-button"></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="numpad"></div>
+    <button id="reset" class="secondary" data-i18n="reset">Nulstil spil</button>
+  </main>
+  <script src="storage.js"></script>
+  <script src="dom.js"></script>
+  <script src="i18n.js"></script>
+  <script src="sudoku.js"></script>
+  <script src="mascot.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

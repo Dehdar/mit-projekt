@@ -1,0 +1,33 @@
+# .NET build output (UI tests)
+bin/
+obj/
+TestResults/
+*.user
+*.suo
+
+# Playwright artifacts
+playwright-report/
+test-results/
+.playwright/
+
+# Editors and IDEs
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# Node (if a static server or tooling is installed locally)
+node_modules/
+npm-debug.log*
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local Claude Code settings (shared settings in .claude/ are kept)
+.claude/settings.local.json
+
+# Logs and temporary files
+*.log
+*.tmp

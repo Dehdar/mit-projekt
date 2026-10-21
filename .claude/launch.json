@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sudoku",
+      "runtimeExecutable": "pwsh",
+      "runtimeArgs": ["-NoProfile", "-File", "tools/serve.ps1", "-Root", "roterende-sudoku", "-Port", "5173"],
+      "port": 5173
+    }
+  ]
+}

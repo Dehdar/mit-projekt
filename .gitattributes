@@ -1,0 +1,5 @@
+# Ens linjeskift i repoet, uanset styresystem
+* text=auto eol=lf
+
+*.png binary
+*.ico binary

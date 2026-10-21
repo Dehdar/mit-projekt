@@ -1,0 +1,388 @@
+:root {
+  --bg: #f4f1ea;
+  --panel: #ffffff;
+  --ink: #1f2430;
+  --muted: #6b7280;
+  --line: #c9ccd3;
+  --line-strong: #1f2430;
+  --entered: #2563eb;
+  --selected: #fde68a;
+  --related: #eef2f7;
+  --same: #dbeafe;
+  --conflict: #dc2626;
+  --conflict-bg: #fee2e2;
+  --accent: #2563eb;
+  --accent-ink: #ffffff;
+  --overlay: rgba(20, 22, 28, 0.6);
+  --content-width: 450px;
+  --rotate-duration: 0.6s;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161c;
+    --panel: #1e2129;
+    --ink: #e8eaf0;
+    --muted: #9aa1ad;
+    --line: #3a3f4b;
+    --line-strong: #c9ccd3;
+    --entered: #7aa7ff;
+    --selected: #5a4a12;
+    --related: #262a34;
+    --same: #1f3354;
+    --conflict: #f87171;
+    --conflict-bg: #3b1d1d;
+    --accent: #3b82f6;
+    --overlay: rgba(0, 0, 0, 0.65);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+main {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 1.6rem;
+  text-align: center;
+}
+
+.stats {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.stat {
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 8px 12px;
+  text-align: center;
+  min-width: 92px;
+}
+
+.label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat span:last-child {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat.warning span:last-child {
+  color: var(--conflict);
+}
+
+/* Brættet */
+
+.board-wrap {
+  position: relative;
+  width: min(100%, var(--content-width));
+  aspect-ratio: 1;
+}
+
+#board {
+  --rot: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  border: 3px solid var(--line-strong);
+  background: var(--panel);
+  transform: rotate(calc(var(--rot) * 90deg));
+  transition: transform var(--rotate-duration) ease;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font-size: clamp(1rem, 5vw, 1.6rem);
+  color: var(--entered);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Tallene drejer modsat brættet, så de altid står lige */
+.cell span {
+  transform: rotate(calc(var(--rot) * -90deg));
+  transition: transform var(--rotate-duration) ease;
+}
+
+#board.no-anim,
+#board.no-anim .cell span {
+  transition: none;
+}
+
+.cell.box-right { border-right: 3px solid var(--line-strong); }
+.cell.box-bottom { border-bottom: 3px solid var(--line-strong); }
+.cell.edge-right { border-right: none; }
+.cell.edge-bottom { border-bottom: none; }
+
+.cell.given {
+  color: var(--ink);
+  font-weight: 700;
+  cursor: default;
+}
+
+.cell.related { background: var(--related); }
+.cell.same { background: var(--same); }
+.cell.selected { background: var(--selected); }
+.cell.conflict { color: var(--conflict); }
+.cell.conflict:not(.selected) { background: var(--conflict-bg); }
+
+/* Overlay ved game over og level klaret */
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+#overlay[hidden] {
+  display: none;
+}
+
+.overlay-box {
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  max-width: 320px;
+}
+
+.overlay-box h2 {
+  margin: 0 0 8px;
+}
+
+.overlay-box p {
+  margin: 0 0 20px;
+  color: var(--muted);
+}
+
+/* Knapper */
+
+button {
+  font: inherit;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+#numpad {
+  width: min(100%, var(--content-width));
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+#numpad button {
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 1.2rem;
+  padding: 12px 0;
+}
+
+/* Mochi */
+
+#mascot {
+  width: min(100%, var(--content-width));
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.mascot-art {
+  position: relative;
+  flex: none;
+  width: 110px;
+  height: 110px;
+  cursor: pointer;
+}
+
+.mascot-art .mood {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  overflow: visible;
+}
+
+#mascot[data-mood="curious"] .mood-curious,
+#mascot[data-mood="shocked"] .mood-shocked,
+#mascot[data-mood="trash"] .mood-trash {
+  display: block;
+}
+
+#mascot-bubble {
+  position: relative;
+  flex: 1;
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--panel);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Hale på taleboblen, der peger mod Mochi */
+#mascot-bubble::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  margin-top: -9px;
+  border: 9px solid transparent;
+  border-left: none;
+  border-right-color: var(--panel);
+}
+
+#mascot-bubble:empty {
+  visibility: hidden;
+}
+
+#mascot-bubble.pop {
+  animation: m-bubble 0.35s ease-out;
+}
+
+.m-head, .m-look, .m-q, .m-jump, .m-sweat, .m-rock, .m-brow, .m-paw, .m-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.m-head { transform-origin: 50% 100%; animation: m-tilt 3.2s ease-in-out infinite; }
+.m-look { animation: m-look 4s ease-in-out infinite; }
+.m-q { animation: m-bob 1.6s ease-in-out infinite; }
+.m-jump { transform-origin: 50% 100%; animation: m-jump 1.2s ease-in-out infinite; }
+.m-lines { animation: m-flash 1.2s ease-in-out infinite; }
+.m-sweat { animation: m-drip 1.2s ease-in infinite; }
+.m-rock { transform-origin: 50% 100%; animation: m-rock 1.4s ease-in-out infinite; }
+.m-brow { animation: m-brow 1.4s ease-in-out infinite; }
+.m-paw { animation: m-pat 0.7s ease-in-out infinite; }
+.m-pop { transform-origin: 20% 100%; animation: m-pop 1.8s ease-in-out infinite; }
+
+@keyframes m-tilt { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+@keyframes m-look {
+  0%, 20% { transform: translate(0, 0); }
+  30%, 50% { transform: translate(4px, -3px); }
+  60%, 80% { transform: translate(-3px, -2px); }
+  90%, 100% { transform: translate(0, 0); }
+}
+@keyframes m-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes m-jump {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  10% { transform: translateY(0) scale(1.08, 0.9); }
+  25% { transform: translateY(-18px) scale(0.95, 1.06); }
+  40% { transform: translateY(0) scale(1.04, 0.96); }
+  48% { transform: translateX(-3px); }
+  56% { transform: translateX(3px); }
+  64% { transform: translateX(-2px); }
+  72% { transform: translateX(0); }
+}
+@keyframes m-flash { 0%, 15%, 100% { opacity: 0; } 25%, 70% { opacity: 1; } }
+@keyframes m-drip {
+  0%, 30% { transform: translateY(-4px); opacity: 0; }
+  45% { opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+@keyframes m-rock { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes m-brow { 0%, 55%, 100% { transform: translateY(0); } 65%, 85% { transform: translateY(-5px); } }
+@keyframes m-pat { 0%, 50%, 100% { transform: translateY(0); } 25%, 75% { transform: translateY(-4px); } }
+@keyframes m-pop {
+  0%, 40%, 100% { transform: scale(1) rotate(0); }
+  8% { transform: scale(1.14) rotate(-5deg); }
+  16% { transform: scale(0.98) rotate(4deg); }
+  24% { transform: scale(1) rotate(0); }
+}
+@keyframes m-bubble { 0% { transform: scale(0.85); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+/* Mochi skubber til brættet */
+
+.mascot-art.push { animation: m-push 0.5s ease-in-out; }
+.board-wrap.shake { animation: m-shake 0.45s ease-out 0.15s; }
+
+@keyframes m-push {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  20% { transform: translate(-4px, -6px) rotate(-6deg); }
+  40% { transform: translate(10px, 22px) rotate(8deg) scale(1.08); }
+  70% { transform: translate(2px, 4px) rotate(0); }
+}
+@keyframes m-shake {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  15% { transform: translate(-7px, 4px) rotate(-1.5deg); }
+  30% { transform: translate(6px, -3px) rotate(1.2deg); }
+  45% { transform: translate(-5px, 2px) rotate(-0.8deg); }
+  60% { transform: translate(3px, -1px) rotate(0.5deg); }
+  80% { transform: translate(-1px, 0) rotate(0); }
+}
+
+/* Sprogknap */
+
+header {
+  width: min(100%, var(--content-width));
+}
+
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
+#lang {
+  padding: 4px 12px;
+  font-size: 0.85rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-head, .m-look, .m-q, .m-jump, .m-lines, .m-sweat, .m-rock, .m-brow, .m-paw, .m-pop,
+  .mascot-art.push, .board-wrap.shake,
+  #mascot-bubble.pop {
+    animation: none;
+  }
+}
