@@ -4,7 +4,7 @@ const LANGUAGE_STORAGE_KEY = "rotating-sudoku-language";
 
 const TRANSLATIONS = {
   da: {
-    title: "Rotating Sudoku",
+    title: "Rainbow Kingdom Sudoku",
     level: "Level",
     erase: "Slet",
     reset: "Nulstil spil",
@@ -35,7 +35,7 @@ const TRANSLATIONS = {
     },
   },
   en: {
-    title: "Rotating Sudoku",
+    title: "Rainbow Kingdom Sudoku",
     level: "Level",
     erase: "Erase",
     reset: "Reset game",

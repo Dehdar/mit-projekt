@@ -6,8 +6,8 @@ namespace RotatingSudoku.UiTests.Support;
 // Shared setup that makes every test repeatable: fixed time and fixed "randomness"
 public abstract class SudokuTest : PageTest
 {
-    // Mochi comments when Math.random() < 0.5 and shoves when it is < 0.3,
-    // so 0.4 makes her always comment but never shove
+    // Stardust comments on frequent moments only when Math.random() < 0.5,
+    // so 0.4 makes her always comment and makes generated puzzles fixed
     private const double FixedRandomValue = 0.4;
 
     private static readonly DateTime StartTime = new(2026, 1, 1, 12, 0, 0);

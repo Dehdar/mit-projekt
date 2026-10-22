@@ -1,6 +1,6 @@
-# Rotating Sudoku
+# Rainbow Kingdom Sudoku
 
-A calm sudoku with no timer and no game over, where finishing a level earns stars. (It is being rebuilt as Rainbow Kingdom Sudoku, a game for children.) Written in plain HTML, CSS and JavaScript — no frameworks, no build step, no dependencies.
+A calm picture sudoku for children aged 6–12. The board grows from 4x4 to 9x9, twirls now and then, and Stardust the unicorn cheers you on. There is no timer and no game over; finishing a level earns stars. Written in plain HTML, CSS and JavaScript — no frameworks, no build step, no dependencies.
 
 **▶ [Play it in your browser](https://dehdar.github.io/rotating-sudoku/)**
 
@@ -16,7 +16,7 @@ A calm sudoku with no timer and no game over, where finishing a level earns star
 - From level 3 the board does a **twirl**: after every few correct pictures it turns a quarter turn clockwise. The pictures stay upright. The board glows when one more correct picture will twirl it. Levels 1 and 2 never twirl, and wrong pictures do not count towards a twirl.
 - Two of the same picture in a row, column or box get a dotted ring, and a picture that is not the right answer gives a little wobble.
 - Fill in a whole row, column or box correctly and it lights up with a **sweep**. The banner names lines the way you see them, so on a board turned on its side a row is called a column.
-- Mochi the cat keeps you company — and taunts you, and occasionally shoves the board.
+- **Stardust**, a young unicorn who is still learning magic, keeps you company. She cheers when you work something out, comforts you after a mistake, and blames her own wobbly spells when the board twirls.
 - Available in English and Danish (toggle in the game).
 
 ## Controls
@@ -40,7 +40,7 @@ Then open <http://localhost:5173/>. Any other static server works too, such as `
 
 ```
 rotating-sudoku/
-├── index.html        Page markup and Mochi's mood SVGs
+├── index.html        Page markup, the picture sprite and Stardust's mood SVGs
 ├── style.css         Styling and animations
 ├── storage.js        Safe localStorage access
 ├── dom.js            Small DOM/animation helpers
@@ -48,7 +48,7 @@ rotating-sudoku/
 ├── sudoku.js         Pure board logic: generating, solving, checking
 ├── symbols.js        The pictures that stand for the digits (drawn from the SVG sprite in index.html)
 ├── cells.js          How a board cell is drawn, shared by the game and the lesson
-├── mascot.js         Mochi the cat
+├── mascot.js         Stardust the unicorn and her lines
 ├── lesson.js         The first lesson, learnt by playing
 ├── game.js           Game flow, stars and rendering
 ├── tests/            UI tests (.NET + Playwright, NUnit)
