@@ -10,9 +10,11 @@ Mochi is the game's personality. Her lines are the main thing players quote and 
 ## Where the lines live
 
 - `LINES` in `mascot.js`: one table per language (`en`, `da`), one array per event.
-- Events and when they fire: `start` (level begins), `select` (empty cell picked, commented ~50% of the time), `rotate` (board turns, ~50%), `right` / `wrong` (digit entered), `erase`, `slow` (15 s idle), `push` (she shoves the board, ~30% of `wrong`/`slow`), `won`, `lost`, `finished` (all levels done).
+- Events and when they fire: `start` (level begins), `select` (empty cell picked, commented ~50% of the time), `rotate` (the board twirls after enough correct digits, ~50%), `right` / `wrong` (digit entered), `erase`, `push` (she shoves the board, ~30% of `wrong`, or when clicked), `won` (level complete), `finished` (all levels done).
+- One digit gets one reaction: the level ending wins over a `sweep`, a `sweep` over a twirl (`rotate`), and a twirl over `right`.
+- There is no clock and no game over, so lines must not mention time running out, being slow or losing.
 - `MOODS` maps each event to a face: `trash` (smug), `shocked`, `curious`. A line must fit the face it is shown with.
-- `pickLine` never repeats the previous line, but small arrays still feel repetitive. Frequent events (`select`, `wrong`, `slow`, `rotate`) need the most lines.
+- `pickLine` never repeats the previous line, but small arrays still feel repetitive. Frequent events (`select`, `wrong`, `right`, `rotate`) need the most lines.
 
 ## Who Mochi is
 
