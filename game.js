@@ -1,72 +1,81 @@
-// Rotating Sudoku: the board rotates every 10 seconds. Solve it before the time runs out.
+// Rotating Sudoku: a calm sudoku with no clock and no game over. Finishing a level earns stars.
 
 const LEVEL_COUNT = 20;
 const FIRST_LEVEL = 1;
-const ROTATE_EVERY_SECONDS = 10;
-const TIME_WARNING_SECONDS = 60;
-const TICK_MS = 1000;
-const SECONDS_PER_MINUTE = 60;
-const SAVE_KEY = "rotating-sudoku";
+const SAVE_KEY = "rainbow-kingdom";
+const PROGRESS_KEY = "rainbow-kingdom-progress";
 
 const BOARD_SHAPE = BOARD_SHAPES.NINE_BY_NINE;
 const CELL_COUNT = cellCountOf(BOARD_SHAPE);
 
-const EASIEST_LEVEL = { clues: 44, minutes: 15 };
-const HARDEST_LEVEL = { clues: 24, minutes: 6 };
-const TIME_STEP_SECONDS = 30;
+const EASIEST_LEVEL_CLUES = 44;
+const HARDEST_LEVEL_CLUES = 24;
 
-const STATUS = Object.freeze({ PLAYING: "playing", WON: "won", LOST: "lost", FINISHED: "finished" });
+const STATUS = Object.freeze({ PLAYING: "playing", WON: "won", FINISHED: "finished" });
 const ERASE_KEYS = ["Backspace", "Delete", "0"];
 
 // Difficulty slides evenly from the first to the last level
 function levelSettings(level) {
-  const progress = (level - FIRST_LEVEL) / (LEVEL_COUNT - FIRST_LEVEL);
-  const minutes = interpolate(EASIEST_LEVEL.minutes, HARDEST_LEVEL.minutes, progress);
-  return {
-    clues: Math.round(interpolate(EASIEST_LEVEL.clues, HARDEST_LEVEL.clues, progress)),
-    seconds: roundToStep(minutes * SECONDS_PER_MINUTE, TIME_STEP_SECONDS),
-  };
+  const share = (level - FIRST_LEVEL) / (LEVEL_COUNT - FIRST_LEVEL);
+  return { clues: Math.round(interpolate(EASIEST_LEVEL_CLUES, HARDEST_LEVEL_CLUES, share)) };
 }
 
-function interpolate(from, to, progress) {
-  return from + (to - from) * progress;
-}
-
-function roundToStep(value, step) {
-  return Math.round(value / step) * step;
+function interpolate(from, to, share) {
+  return from + (to - from) * share;
 }
 
 // ---------- Game state ----------
 
-// { level, puzzle, solution, board, timeLeft, status }. Saved as JSON, so the keys must not be renamed.
+// { level, puzzle, solution, board, oopsies, wandsUsed, status }. Saved as JSON, so the keys must not be renamed.
+// wandsUsed is reserved for the magic wand hint and stays 0 until it exists.
 let state = null;
 let selectedCellIndex = null;
-let countdownTimer = null;
 
 function saveGame() {
   writeStorage(SAVE_KEY, JSON.stringify(state));
 }
 
 function loadSavedGame() {
+  const saved = parseStoredJson(SAVE_KEY);
+  return isValidSave(saved) ? saved : null;
+}
+
+function parseStoredJson(key) {
   try {
-    const saved = JSON.parse(readStorage(SAVE_KEY));
-    return isValidSave(saved) ? saved : null;
+    return JSON.parse(readStorage(key));
   } catch {
     return null;
   }
 }
 
 function isValidSave(saved) {
-  return Boolean(saved && saved.level >= FIRST_LEVEL && saved.level <= LEVEL_COUNT && saved.board?.length === CELL_COUNT);
+  return Boolean(saved) &&
+    isLevel(saved.level) &&
+    [saved.puzzle, saved.solution, saved.board].every(isFullBoard) &&
+    isCount(saved.oopsies) &&
+    isCount(saved.wandsUsed) &&
+    Object.values(STATUS).includes(saved.status);
+}
+
+function isLevel(value) {
+  return Number.isInteger(value) && value >= FIRST_LEVEL && value <= LEVEL_COUNT;
+}
+
+function isFullBoard(board) {
+  return Array.isArray(board) && board.length === CELL_COUNT;
+}
+
+function isCount(value) {
+  return Number.isInteger(value) && value >= 0;
 }
 
 function startLevel(level) {
-  const { clues, seconds } = levelSettings(level);
-  const puzzle = makePuzzle(BOARD_SHAPE, clues);
-  state = { level, puzzle, solution: solvePuzzle(BOARD_SHAPE, puzzle), board: [...puzzle], timeLeft: seconds, status: STATUS.PLAYING };
+  const puzzle = makePuzzle(BOARD_SHAPE, levelSettings(level).clues);
+  const solution = solvePuzzle(BOARD_SHAPE, puzzle);
+  state = { level, puzzle, solution, board: [...puzzle], oopsies: 0, wandsUsed: 0, status: STATUS.PLAYING };
   selectedCellIndex = null;
   saveGame();
-  refreshGameWithoutAnimation();
+  refreshGame();
   mochi("start");
 }
 
@@ -77,52 +86,8 @@ function resumeOrStartGame() {
     return;
   }
   state = saved;
-  if (state.solution?.length !== CELL_COUNT) state.solution = solvePuzzle(BOARD_SHAPE, state.puzzle); // older saves
-  refreshGameWithoutAnimation();
-  mochi(state.status === STATUS.PLAYING ? "start" : state.status);
-}
-
-function syncTimerWithStatus() {
-  if (state.status === STATUS.PLAYING) startTimer();
-  else stopTimer();
-}
-
-function startTimer() {
-  if (countdownTimer === null) countdownTimer = setInterval(tick, TICK_MS);
-}
-
-function stopTimer() {
-  clearInterval(countdownTimer);
-  countdownTimer = null;
-}
-
-function tick() {
-  countDownOneSecond();
-  saveGame();
   refreshGame();
-  if (state.status === STATUS.LOST) mochi("lost");
-  else if (isRotationMoment()) mochi("rotate");
-}
-
-function countDownOneSecond() {
-  state.timeLeft = Math.max(0, state.timeLeft - 1);
-  if (state.timeLeft === 0) state.status = STATUS.LOST;
-}
-
-function secondsElapsedInLevel() {
-  return levelSettings(state.level).seconds - state.timeLeft;
-}
-
-function rotationCount() {
-  return Math.floor(secondsElapsedInLevel() / ROTATE_EVERY_SECONDS);
-}
-
-function secondsUntilRotation() {
-  return ROTATE_EVERY_SECONDS - (secondsElapsedInLevel() % ROTATE_EVERY_SECONDS);
-}
-
-function isRotationMoment() {
-  return secondsElapsedInLevel() % ROTATE_EVERY_SECONDS === 0;
+  mochi(state.status === STATUS.PLAYING ? "start" : state.status);
 }
 
 function selectCell(cellIndex) {
@@ -135,12 +100,22 @@ function selectCell(cellIndex) {
 function enterDigit(digit) {
   if (!canEditSelectedCell() || state.board[selectedCellIndex] === digit) return;
   state.board[selectedCellIndex] = digit;
-  if (isSolved(BOARD_SHAPE, state.board)) state.status = statusAfterSolvingLevel();
+  if (isOops(digit)) state.oopsies++;
+  if (isSolved(BOARD_SHAPE, state.board)) finishLevel();
   saveGame();
   refreshGame();
   const sweptUnits = unitsSweptAt(selectedCellIndex);
   if (sweptUnits.length > 0) celebrateSweep(sweptUnits);
   mochi(sweptUnits.length > 0 ? "sweep" : mochiReactionTo(digit));
+}
+
+function isOops(digit) {
+  return digit !== EMPTY && digit !== state.solution[selectedCellIndex];
+}
+
+function finishLevel() {
+  state.status = state.level === LEVEL_COUNT ? STATUS.FINISHED : STATUS.WON;
+  keepBestStars(state.level, starsEarnedWith(state.oopsies));
 }
 
 // Solving the whole level has its own celebration, so a sweep only counts mid-level
@@ -153,20 +128,58 @@ function canEditSelectedCell() {
   return state.status === STATUS.PLAYING && selectedCellIndex !== null && state.puzzle[selectedCellIndex] === EMPTY;
 }
 
-function statusAfterSolvingLevel() {
-  return state.level === LEVEL_COUNT ? STATUS.FINISHED : STATUS.WON;
-}
-
 function mochiReactionTo(digit) {
   if (state.status !== STATUS.PLAYING) return state.status;
   if (digit === EMPTY) return "erase";
-  return digit === state.solution[selectedCellIndex] ? "right" : "wrong";
+  return isOops(digit) ? "wrong" : "right";
+}
+
+// ---------- Stars ----------
+
+// Stars are earned in this order, so a level with n stars has the first n of them
+const CAREFUL_OOPSIES_LIMIT = 2;
+const STARS = [
+  { icon: "★", labelKey: "starFinished", isEarnedWith: () => true },
+  { icon: "✪", labelKey: "starCareful", isEarnedWith: (oopsies) => oopsies <= CAREFUL_OOPSIES_LIMIT },
+];
+
+// { starsByLevel: { [level]: stars } }, kept separate from the game so starting a new puzzle never touches it
+let progress = loadProgress();
+
+function loadProgress() {
+  const saved = parseStoredJson(PROGRESS_KEY);
+  return { starsByLevel: validStarsByLevel(saved?.starsByLevel) };
+}
+
+// Drops only the entries that make no sense, so one bad value does not cost the child every star
+function validStarsByLevel(starsByLevel) {
+  if (typeof starsByLevel !== "object" || starsByLevel === null) return {};
+  return Object.fromEntries(Object.entries(starsByLevel).filter(([level, stars]) => isLevel(Number(level)) && isStarCount(stars)));
+}
+
+function isStarCount(value) {
+  return Number.isInteger(value) && value >= 1 && value <= STARS.length;
+}
+
+function starsEarnedWith(oopsies) {
+  return STARS.filter((star) => star.isEarnedWith(oopsies)).length;
+}
+
+function bestStarsFor(level) {
+  return progress.starsByLevel[level] ?? 0;
+}
+
+// Replaying a level can add stars but never take them away
+function keepBestStars(level, stars) {
+  progress.starsByLevel[level] = Math.max(bestStarsFor(level), stars);
+  writeStorage(PROGRESS_KEY, JSON.stringify(progress));
 }
 
 // ---------- Rendering ----------
 
 const boardEl = document.getElementById("board");
 const overlayEl = document.getElementById("overlay");
+const overlayStarsEl = document.getElementById("overlay-stars");
 const cells = createCellsOnBoard();
 
 function createCellsOnBoard() {
@@ -199,17 +212,7 @@ function borderClassesFor(cellIndex) {
 function refreshGame() {
   renderBoard();
   renderStats();
-  renderRotation();
   renderOverlay();
-  syncTimerWithStatus();
-}
-
-// On start and reload the board must be in place at once instead of rotating into position
-function refreshGameWithoutAnimation() {
-  boardEl.classList.add("no-anim");
-  refreshGame();
-  forceReflow(boardEl);
-  boardEl.classList.remove("no-anim");
 }
 
 function renderBoard() {
@@ -235,19 +238,6 @@ function selectedDigit() {
 
 function renderStats() {
   document.getElementById("level").textContent = `${state.level} / ${LEVEL_COUNT}`;
-  document.getElementById("time").textContent = formatTime(state.timeLeft);
-  document.getElementById("time-stat").classList.toggle("warning", state.timeLeft <= TIME_WARNING_SECONDS);
-  document.getElementById("rotate").textContent = `${secondsUntilRotation()} s`;
-}
-
-function formatTime(totalSeconds) {
-  const minutes = Math.floor(totalSeconds / SECONDS_PER_MINUTE);
-  const seconds = totalSeconds % SECONDS_PER_MINUTE;
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
-}
-
-function renderRotation() {
-  boardEl.style.setProperty("--rot", rotationCount());
 }
 
 // ---------- Sweep: a row, column or box completed ----------
@@ -278,9 +268,9 @@ function playSweepWave(units) {
 }
 
 function showSweepBanner(units) {
-  const visibleKinds = units.map(visibleKindOf);
-  visibleKinds.sort((first, second) => UNIT_NAME_ORDER.indexOf(first) - UNIT_NAME_ORDER.indexOf(second));
-  const names = visibleKinds.map((kind) => translate(UNIT_NAME_KEYS[kind]));
+  const kinds = units.map((unit) => unit.kind);
+  kinds.sort((first, second) => UNIT_NAME_ORDER.indexOf(first) - UNIT_NAME_ORDER.indexOf(second));
+  const names = kinds.map((kind) => translate(UNIT_NAME_KEYS[kind]));
   sweepBannerEl.textContent = translate("sweep", names);
   restartAnimation(sweepBannerEl, "show");
   clearTimeout(sweepBannerTimer);
@@ -291,43 +281,38 @@ function hideSweepBanner() {
   sweepBannerEl.textContent = "";
 }
 
-// After a quarter or three-quarter turn a row runs up and down the screen,
-// so the banner names the line the way the player sees it
-function visibleKindOf(unit) {
-  const isTurnedSideways = rotationCount() % 2 === 1;
-  if (!isTurnedSideways || unit.kind === "box") return unit.kind;
-  return unit.kind === "row" ? "column" : "row";
-}
-
 function renderOverlay() {
   const screen = overlayScreenFor(state.status);
   overlayEl.hidden = !screen;
   if (!screen) return;
   document.getElementById("overlay-title").textContent = screen.title;
-  document.getElementById("overlay-text").textContent = screen.text;
+  document.getElementById("overlay-text").textContent = translate("starsText", bestStarsFor(state.level), STARS.length);
+  renderStarList(bestStarsFor(state.level));
   const button = document.getElementById("overlay-button");
   button.textContent = screen.button;
   button.onclick = screen.action;
 }
 
+// Every star is listed, the missing ones dimmed, so the child sees how to earn them
+function renderStarList(earnedStars) {
+  overlayStarsEl.replaceChildren(...STARS.map((star, index) => {
+    const item = document.createElement("li");
+    item.className = index < earnedStars ? "star earned" : "star missing";
+    item.textContent = `${star.icon} ${translate(star.labelKey, CAREFUL_OOPSIES_LIMIT)}`;
+    return item;
+  }));
+}
+
 // While playing there is no overlay
 function overlayScreenFor(status) {
   const screens = {
-    [STATUS.LOST]: {
-      title: translate("lostTitle"),
-      text: translate("lostText", state.level),
-      button: translate("lostButton"),
-      action: () => startLevel(state.level),
-    },
     [STATUS.WON]: {
       title: translate("wonTitle", state.level),
-      text: translate("wonText", formatTime(state.timeLeft)),
       button: translate("wonButton"),
       action: () => startLevel(state.level + 1),
     },
     [STATUS.FINISHED]: {
       title: translate("finishedTitle"),
-      text: translate("finishedText"),
       button: translate("finishedButton"),
       action: () => startLevel(FIRST_LEVEL),
     },
@@ -353,6 +338,7 @@ function handleKeyDown(event) {
   else if (ERASE_KEYS.includes(event.key)) enterDigit(EMPTY);
 }
 
+// Stars are kept: a reset only starts the journey over
 function confirmAndResetGame() {
   if (confirm(translate("resetConfirm"))) startLevel(FIRST_LEVEL);
 }

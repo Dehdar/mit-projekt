@@ -1,13 +1,8 @@
-using System.Text.Json;
-
 namespace RotatingSudoku.UiTests.Support;
 
 // A known board, so the tests do not depend on randomly generated puzzles
-internal sealed record SavedGame
+internal sealed record SavedGame : ISavedData
 {
-    public const int LevelOneSeconds = 15 * 60;
-
-    private const string StorageKey = "rotating-sudoku";
     private const int Empty = 0;
 
     private static readonly int[] Solution = ParseRows(
@@ -21,28 +16,20 @@ internal sealed record SavedGame
         "287419635",
         "345286179");
 
+    public string StorageKey => "rainbow-kingdom";
+
     public int Level { get; init; } = 1;
-    public int TimeLeft { get; init; } = LevelOneSeconds;
+    public int Oopsies { get; init; }
 
     // Two empty cells by default, so entering one digit does not solve the board
     public IReadOnlyList<Cell> EmptyCells { get; init; } = [Cell.TopLeft, Cell.BottomRight];
 
     public static int SolutionAt(Cell cell) => Solution[cell.Index];
 
-    // Init scripts run on every load, so the save may only be seeded the first time,
-    // otherwise a reload would overwrite the player's progress
-    public string ToInitScript()
-    {
-        var json = JsonSerializer.Serialize(ToSaveData());
-        return $$"""
-            if (!sessionStorage.getItem("test-seeded")) {
-              localStorage.setItem({{JsonSerializer.Serialize(StorageKey)}}, {{JsonSerializer.Serialize(json)}});
-              sessionStorage.setItem("test-seeded", "true");
-            }
-            """;
-    }
+    public static IEnumerable<int> WrongDigitsAt(Cell cell) =>
+        Enumerable.Range(1, 9).Where(digit => digit != SolutionAt(cell));
 
-    private object ToSaveData()
+    public object ToSaveData()
     {
         var puzzle = PuzzleWithEmptyCells();
         return new
@@ -51,7 +38,8 @@ internal sealed record SavedGame
             puzzle,
             solution = Solution,
             board = puzzle,
-            timeLeft = TimeLeft,
+            oopsies = Oopsies,
+            wandsUsed = 0,
             status = "playing",
         };
     }
