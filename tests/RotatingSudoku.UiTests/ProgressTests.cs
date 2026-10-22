@@ -6,6 +6,7 @@ namespace RotatingSudoku.UiTests;
 public class ProgressTests : SudokuTest
 {
     private const int AnHourInSeconds = 60 * 60;
+    private const int RaindropDigit = 5;
 
     private static readonly SavedGame LevelSeventeen = new() { Level = 17 };
 
@@ -23,20 +24,20 @@ public class ProgressTests : SudokuTest
         await Game.OpenAsync(new SavedGame());
         await Game.WaitSecondsAsync(AnHourInSeconds);
 
-        await Game.EnterDigitAsync(Cell.TopLeft, 5);
+        await Game.EnterDigitAsync(Cell.TopLeft, RaindropDigit);
 
-        await Expect(Game.CellAt(Cell.TopLeft)).ToHaveTextAsync("5");
+        await Expect(Game.CellAt(Cell.TopLeft)).ToHaveAccessibleNameAsync("Raindrop");
     }
 
     [Test]
     public async Task EnteredDigitsAreStillThereAfterReloading()
     {
         await Game.OpenAsync(new SavedGame());
-        await Game.EnterDigitAsync(Cell.TopLeft, 5);
+        await Game.EnterDigitAsync(Cell.TopLeft, RaindropDigit);
 
         await Game.ReloadAsync();
 
-        await Expect(Game.CellAt(Cell.TopLeft)).ToHaveTextAsync("5");
+        await Expect(Game.CellAt(Cell.TopLeft)).ToHaveAccessibleNameAsync("Raindrop");
     }
 
     [Test]

@@ -18,6 +18,17 @@ internal sealed class SudokuPage(IPage page)
     public ILocator Button(string name) => page.GetByRole(AriaRole.Button, new() { Name = name, Exact = true });
     public ILocator Text(string text) => page.GetByText(text, new() { Exact = true });
 
+    // Erase sits with the pictures, so it counts as one of the buttons
+    public ILocator PictureButtons => Pictures.GetByRole(AriaRole.Button);
+    public ILocator PictureButton(string name) => Pictures.GetByRole(AriaRole.Button, new() { Name = name, Exact = true });
+
+    // The row of picture buttons under the board, in either language
+    private ILocator Pictures => page.GetByRole(AriaRole.Group, new() { NameRegex = new Regex("^(Pictures|Billeder)$") });
+
+    public ILocator Lesson => page.GetByRole(AriaRole.Dialog, new() { Name = "How to play", Exact = true });
+    public ILocator LessonButton(string name) => Lesson.GetByRole(AriaRole.Button, new() { Name = name, Exact = true });
+    public ILocator LessonEmptyCells => Lesson.GetByRole(AriaRole.Img, new() { Name = Symbols.EmptyCell, Exact = true });
+
     // A new game starts on level 1, which has the smallest board
     public async Task OpenNewGameAsync()
     {
@@ -34,6 +45,13 @@ internal sealed class SudokuPage(IPage page)
 
     public async Task ReloadAsync() => await page.ReloadAsync();
 
+    // The lesson asks for the heart, then the star and the moon
+    public async Task PlayTheLessonAsync()
+    {
+        foreach (var name in new[] { "Heart", "Star", "Moon" }) await LessonButton(name).ClickAsync();
+        await LessonButton("Let's play!").ClickAsync();
+    }
+
     // A turn starts from where the board was, so "not turned" can only be judged once any turn has finished
     public async Task WaitForTheBoardToStopTurningAsync() =>
         await Board.EvaluateAsync(
@@ -41,10 +59,11 @@ internal sealed class SudokuPage(IPage page)
 
     public async Task SelectCellAsync(Cell cell) => await CellAt(cell).ClickAsync();
 
+    // The buttons are in digit order; picking by place works whatever language the names are in
     public async Task EnterDigitAsync(Cell cell, int digit)
     {
         await SelectCellAsync(cell);
-        await Button(digit.ToString()).ClickAsync();
+        await PictureButtons.Nth(digit - 1).ClickAsync();
     }
 
     public async Task TypeKeyAsync(Cell cell, string key)

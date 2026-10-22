@@ -142,7 +142,7 @@ function selectCell(cellIndex) {
 function enterDigit(digit) {
   if (!canEditSelectedCell() || state.board[selectedCellIndex] === digit) return;
   state.board[selectedCellIndex] = digit;
-  if (isOops(digit)) state.oopsies++;
+  if (isOops(digit)) countOops();
   if (isSolved(currentShape(), state.board)) finishLevel();
   const twirled = isTwirlDue();
   if (twirled) state.twirls++;
@@ -152,6 +152,12 @@ function enterDigit(digit) {
   if (sweptUnits.length > 0) celebrateSweep(sweptUnits);
   if (twirled) playTwirl();
   mochi(mochiReactionTo(digit, { swept: sweptUnits.length > 0, twirled }));
+}
+
+// The picture wobbles so the child notices, without a red error mark
+function countOops() {
+  state.oopsies++;
+  restartAnimation(cells[selectedCellIndex], "wobble");
 }
 
 function isOops(digit) {
@@ -216,16 +222,20 @@ function playTwirl() {
 // Stars are earned in this order, so a level with n stars has the first n of them
 const CAREFUL_OOPSIES_LIMIT = 2;
 const STARS = [
-  { icon: "★", labelKey: "starFinished", isEarnedWith: () => true },
-  { icon: "✪", labelKey: "starCareful", isEarnedWith: (oopsies) => oopsies <= CAREFUL_OOPSIES_LIMIT },
+  { spriteId: "award-finished", labelKey: "starFinished", isEarnedWith: () => true },
+  { spriteId: "award-careful", labelKey: "starCareful", isEarnedWith: (oopsies) => oopsies <= CAREFUL_OOPSIES_LIMIT },
 ];
 
-// { starsByLevel: { [level]: stars } }, kept separate from the game so starting a new puzzle never touches it
+// { starsByLevel: { [level]: stars }, lessonDone }, kept separate from the game so starting a new puzzle never touches it.
+// lessonDone is null for progress saved before the lesson existed, until the start-up decides it.
 let progress = loadProgress();
 
 function loadProgress() {
   const saved = parseStoredJson(PROGRESS_KEY);
-  return { starsByLevel: validStarsByLevel(saved?.starsByLevel) };
+  return {
+    starsByLevel: validStarsByLevel(saved?.starsByLevel),
+    lessonDone: typeof saved?.lessonDone === "boolean" ? saved.lessonDone : null,
+  };
 }
 
 // Drops only the entries that make no sense, so one bad value does not cost the child every star
@@ -249,7 +259,37 @@ function bestStarsFor(level) {
 // Replaying a level can add stars but never take them away
 function keepBestStars(level, stars) {
   progress.starsByLevel[level] = Math.max(bestStarsFor(level), stars);
+  saveProgress();
+}
+
+function saveProgress() {
   writeStorage(PROGRESS_KEY, JSON.stringify(progress));
+}
+
+// ---------- First lesson ----------
+
+// Only a first visit gets the lesson. Older players have stars or a game in progress, so they skip it;
+// the answer is saved at once, so a reload in the middle of the lesson shows it again.
+function needsLesson() {
+  if (progress.lessonDone === null) {
+    progress.lessonDone = !isFirstVisit();
+    saveProgress();
+  }
+  return !progress.lessonDone;
+}
+
+function isFirstVisit() {
+  return !loadSavedGame() && Object.keys(progress.starsByLevel).length === 0;
+}
+
+function showLesson() {
+  silenceMochi();
+  openLesson(markLessonDone);
+}
+
+function markLessonDone() {
+  progress.lessonDone = true;
+  saveProgress();
 }
 
 // ---------- Rendering ----------
@@ -264,29 +304,13 @@ function createCellsOnBoard() {
   const shape = currentShape();
   boardEl.style.setProperty("--board-size", shape.size);
   cells = Array.from({ length: cellCountOf(shape) }, (_, cellIndex) => {
-    const cell = document.createElement("div");
-    cell.className = "cell";
+    const cell = createCell(shape, cellIndex);
     cell.dataset.testid = "cell";
-    cell.classList.add(...borderClassesFor(shape, cellIndex));
-    cell.append(document.createElement("span"));
+    cell.setAttribute("role", "button");
     cell.addEventListener("click", () => selectCell(cellIndex));
     return cell;
   });
   boardEl.replaceChildren(...cells);
-}
-
-// Thick lines between the boxes, but none at the board edge, where the frame already draws one
-function borderClassesFor(shape, cellIndex) {
-  const { size, boxRows, boxColumns } = shape;
-  const lastIndex = size - 1;
-  const classes = [];
-  const column = columnOf(shape, cellIndex);
-  const row = rowOf(shape, cellIndex);
-  if (column === lastIndex) classes.push("edge-right");
-  else if ((column + 1) % boxColumns === 0) classes.push("box-right");
-  if (row === lastIndex) classes.push("edge-bottom");
-  else if ((row + 1) % boxRows === 0) classes.push("box-bottom");
-  return classes;
 }
 
 function refreshGame() {
@@ -313,7 +337,7 @@ function renderCell(cell, cellIndex, conflicts) {
   const digit = state.board[cellIndex];
   const isSelected = cellIndex === selectedCellIndex;
   const isRelated = !isSelected && selectedCellIndex !== null && isInSameRowColumnOrBox(currentShape(), cellIndex, selectedCellIndex);
-  cell.firstChild.textContent = digit || "";
+  showCellPicture(cell, digit);
   cell.classList.toggle("given", state.puzzle[cellIndex] !== EMPTY);
   cell.classList.toggle("selected", isSelected);
   cell.classList.toggle("related", isRelated);
@@ -400,7 +424,7 @@ function renderStarList(earnedStars) {
   overlayStarsEl.replaceChildren(...STARS.map((star, index) => {
     const item = document.createElement("li");
     item.className = index < earnedStars ? "star earned" : "star missing";
-    item.textContent = `${star.icon} ${translate(star.labelKey, CAREFUL_OOPSIES_LIMIT)}`;
+    item.append(createIcon(star.spriteId), translate(star.labelKey, CAREFUL_OOPSIES_LIMIT));
     return item;
   }));
 }
@@ -424,8 +448,8 @@ function overlayScreenFor(status) {
 
 // ---------- Input ----------
 
-// The number buttons fit on one row while they are few enough to stay easy to tap
-const MOST_NUMPAD_BUTTONS_IN_ONE_ROW = 7;
+// The picture buttons fit on one row while they are few enough to stay big on a phone
+const MOST_NUMPAD_BUTTONS_IN_ONE_ROW = 5;
 
 function createNumpadButtons() {
   const buttons = [...digitsOf(currentShape()), EMPTY].map(createNumpadButton);
@@ -435,8 +459,13 @@ function createNumpadButtons() {
 
 function createNumpadButton(digit) {
   const button = document.createElement("button");
-  button.textContent = digit === EMPTY ? translate("erase") : digit;
-  if (digit === EMPTY) button.dataset.i18n = "erase";
+  if (digit === EMPTY) {
+    button.dataset.i18n = "erase";
+    button.textContent = translate("erase");
+  } else {
+    button.append(createIcon(symbolSpriteIdFor(digit)));
+    button.setAttribute("aria-label", symbolNameFor(digit));
+  }
   button.addEventListener("click", () => enterDigit(digit));
   return button;
 }
@@ -446,6 +475,7 @@ function numpadColumnsFor(buttonCount) {
 }
 
 function handleKeyDown(event) {
+  if (isLessonOpen()) return;
   const digit = Number(event.key);
   if (digitsOf(currentShape()).includes(digit)) enterDigit(digit);
   else if (ERASE_KEYS.includes(event.key)) enterDigit(EMPTY);
@@ -456,8 +486,11 @@ function confirmAndResetGame() {
   if (confirm(translate("resetConfirm"))) startLevel(FIRST_LEVEL);
 }
 
+// The pictures' names are read aloud, so they change language too
 function switchLanguage() {
   toggleLanguage();
+  createNumpadButtons();
+  renderBoard();
   renderOverlay();
   silenceMochi();
 }
@@ -465,7 +498,10 @@ function switchLanguage() {
 document.addEventListener("keydown", handleKeyDown);
 document.getElementById("reset").addEventListener("click", confirmAndResetGame);
 document.getElementById("lang").addEventListener("click", switchLanguage);
+document.getElementById("how-to-play").addEventListener("click", showLesson);
 
 // ---------- Start ----------
 
+const isLessonNeeded = needsLesson(); // decided before the game is saved, which would end the first visit
 resumeOrStartGame();
+if (isLessonNeeded) showLesson();

@@ -21,6 +21,18 @@ const TRANSLATIONS = {
     unitColumn: "Kolonne",
     unitBox: "Boks",
     sweep: (units) => `${units.join(" + ")} klaret!`,
+    pictures: "Billeder",
+    howToPlay: "Sådan spiller du",
+    lessonTitle: "Sådan spiller du",
+    lessonHint: "Hvert billede én gang i hver række, kolonne og boks",
+    lessonDone: "Godt klaret!",
+    lessonPlay: "Lad os spille!",
+    lessonSkip: "Spring over",
+    emptyCell: "Tomt felt",
+    symbolNames: {
+      heart: "Hjerte", star: "Stjerne", moon: "Måne", flower: "Blomst", raindrop: "Regndråbe",
+      crown: "Krone", gem: "Ædelsten", rainbow: "Regnbue", unicorn: "Enhjørning",
+    },
   },
   en: {
     title: "Rotating Sudoku",
@@ -40,6 +52,18 @@ const TRANSLATIONS = {
     unitColumn: "Column",
     unitBox: "Box",
     sweep: (units) => `${units.join(" + ")} complete!`,
+    pictures: "Pictures",
+    howToPlay: "How to play",
+    lessonTitle: "How to play",
+    lessonHint: "Each picture once in every row, column and box",
+    lessonDone: "Well done!",
+    lessonPlay: "Let's play!",
+    lessonSkip: "Skip",
+    emptyCell: "Empty cell",
+    symbolNames: {
+      heart: "Heart", star: "Star", moon: "Moon", flower: "Flower", raindrop: "Raindrop",
+      crown: "Crown", gem: "Gem", rainbow: "Rainbow", unicorn: "Unicorn",
+    },
   },
 };
 
@@ -62,6 +86,9 @@ function translatePage() {
   document.title = translate("title");
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     element.textContent = translate(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-label]").forEach((element) => {
+    element.setAttribute("aria-label", translate(element.dataset.i18nLabel));
   });
 }
 

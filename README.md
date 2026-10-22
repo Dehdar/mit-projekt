@@ -6,20 +6,23 @@ A calm sudoku with no timer and no game over, where finishing a level earns star
 
 ## Rules
 
+- **A first lesson, learnt by playing:** on a first visit, two tiny 4x4 boards show that each picture goes once in every row, column and box (the row, column and box around the empty cell light up). It can be skipped, is never scored, and can be played again from the **?** button.
 - **No timer and no game over.** Take as long as you like; a level only ends when you solve it.
-- **The board grows with you** over 20 levels: 4x4 on levels 1–5, 6x6 (boxes two rows tall and three columns wide) on levels 6–15, and the classic 9x9 on levels 16–20. Within each size the levels give fewer digits as you go.
+- **Pictures instead of numbers:** heart, star, moon and flower on 4x4 boards; raindrop and crown join on 6x6; gem, rainbow and unicorn complete the nine on 9x9. Every picture has its own shape, so the game works without telling colours apart. Each picture goes once in every row, column and box.
+- **The board grows with you** over 20 levels: 4x4 on levels 1–5, 6x6 (boxes two rows tall and three columns wide) on levels 6–15, and the classic 9x9 on levels 16–20. Within each size the levels give fewer pictures as you go.
 - Every puzzle is generated fresh and is guaranteed to have exactly one solution.
-- Finishing a level earns **stars**: one for finishing, and a second "careful" star if you made 2 oopsies or fewer (an oops is a digit that is not the right answer, even if you fix it later). Replaying a level can earn more stars but never takes any away.
+- Finishing a level earns **stars**: one for finishing, and a second "careful" star if you made 2 oopsies or fewer (an oops is a picture that is not the right answer, even if you fix it later). Replaying a level can earn more stars but never takes any away.
 - Your game and your stars are saved in the browser, so you continue where you left off. The **Reset game** button starts over from level 1 and keeps your stars.
-- From level 3 the board does a **twirl**: after every few correct digits it turns a quarter turn clockwise. The digits stay upright. The board glows when one more correct digit will twirl it. Levels 1 and 2 never twirl, and wrong digits do not count towards a twirl.
+- From level 3 the board does a **twirl**: after every few correct pictures it turns a quarter turn clockwise. The pictures stay upright. The board glows when one more correct picture will twirl it. Levels 1 and 2 never twirl, and wrong pictures do not count towards a twirl.
+- Two of the same picture in a row, column or box get a dotted ring, and a picture that is not the right answer gives a little wobble.
 - Fill in a whole row, column or box correctly and it lights up with a **sweep**. The banner names lines the way you see them, so on a board turned on its side a row is called a column.
 - Mochi the cat keeps you company — and taunts you, and occasionally shoves the board.
 - Available in English and Danish (toggle in the game).
 
 ## Controls
 
-- Click a cell to select it, then type a digit (**1–4**, **1–6** or **1–9**, depending on the board) or use the number buttons.
-- **Backspace**, **Delete**, **0** or the **Erase** button clears a digit.
+- Tap a cell to select it, then tap a picture button. On a keyboard, the digits work too: **1** is the heart, **2** the star, and so on (**1–4**, **1–6** or **1–9**, depending on the board).
+- **Backspace**, **Delete**, **0** or the **Erase** button clears a picture.
 
 ## Running it locally
 
@@ -43,7 +46,10 @@ rotating-sudoku/
 ├── dom.js            Small DOM/animation helpers
 ├── i18n.js           English and Danish translations
 ├── sudoku.js         Pure board logic: generating, solving, checking
+├── symbols.js        The pictures that stand for the digits (drawn from the SVG sprite in index.html)
+├── cells.js          How a board cell is drawn, shared by the game and the lesson
 ├── mascot.js         Mochi the cat
+├── lesson.js         The first lesson, learnt by playing
 ├── game.js           Game flow, stars and rendering
 ├── tests/            UI tests (.NET + Playwright, NUnit)
 ├── tools/serve.ps1   Tiny static server for local play (PowerShell 7)
