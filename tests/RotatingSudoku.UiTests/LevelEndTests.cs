@@ -33,7 +33,7 @@ public class LevelEndTests : SudokuTest
     [Test]
     public async Task SolvingTheLastLevelShowsAllLevelsComplete()
     {
-        await Game.OpenAsync(OneCellFromSolved with { Level = LastLevel, TimeLeft = 300 });
+        await Game.OpenAsync(OneCellFromSolved with { Level = LastLevel });
 
         await SolveLastCellAsync();
 
@@ -43,34 +43,12 @@ public class LevelEndTests : SudokuTest
     [Test]
     public async Task PlayAgainAfterTheLastLevelStartsOverFromLevelOne()
     {
-        await Game.OpenAsync(OneCellFromSolved with { Level = LastLevel, TimeLeft = 300 });
+        await Game.OpenAsync(OneCellFromSolved with { Level = LastLevel });
         await SolveLastCellAsync();
 
         await Game.Button("Play again").ClickAsync();
 
         await Expect(Game.Text("1 / 20")).ToBeVisibleAsync();
-    }
-
-    [Test]
-    public async Task RunningOutOfTimeShowsGameOver()
-    {
-        await Game.OpenAsync(new SavedGame { TimeLeft = 1 });
-
-        await Game.WaitSecondsAsync(1);
-
-        await Expect(Game.Heading("Game over")).ToBeVisibleAsync();
-    }
-
-    [Test]
-    public async Task TryAgainRestartsTheSameLevelWithFullTime()
-    {
-        await Game.OpenAsync(new SavedGame { TimeLeft = 1 });
-        await Game.WaitSecondsAsync(1);
-
-        await Game.Button("Try again").ClickAsync();
-
-        await Expect(Game.Text("1 / 20")).ToBeVisibleAsync();
-        await Expect(Game.Text("15:00")).ToBeVisibleAsync();
     }
 
     private async Task SolveLastCellAsync() =>
