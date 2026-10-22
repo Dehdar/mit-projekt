@@ -21,6 +21,10 @@ const TRANSLATIONS = {
     finishedTitle: "Du klarede alle 20 levels!",
     finishedText: "Sejt gået. Vil du starte forfra?",
     finishedButton: "Spil igen",
+    unitRow: "Række",
+    unitColumn: "Kolonne",
+    unitBox: "Boks",
+    sweep: (units) => `${units.join(" + ")} klaret!`,
   },
   en: {
     title: "Rotating Sudoku",
@@ -40,6 +44,10 @@ const TRANSLATIONS = {
     finishedTitle: "You beat all 20 levels!",
     finishedText: "Well done. Want to start over?",
     finishedButton: "Play again",
+    unitRow: "Row",
+    unitColumn: "Column",
+    unitBox: "Box",
+    sweep: (units) => `${units.join(" + ")} complete!`,
   },
 };
 

@@ -135,7 +135,15 @@ function enterDigit(digit) {
   if (isSolved(state.board)) state.status = statusAfterSolvingLevel();
   saveGame();
   refreshGame();
-  mochi(mochiReactionTo(digit));
+  const sweptUnits = unitsSweptAt(selectedCellIndex);
+  if (sweptUnits.length > 0) celebrateSweep(sweptUnits);
+  mochi(sweptUnits.length > 0 ? "sweep" : mochiReactionTo(digit));
+}
+
+// Solving the whole level has its own celebration, so a sweep only counts mid-level
+function unitsSweptAt(cellIndex) {
+  if (state.status !== STATUS.PLAYING) return [];
+  return completedUnitsThrough(state.board, state.solution, cellIndex);
 }
 
 function canEditSelectedCell() {
@@ -236,6 +244,55 @@ function formatTime(totalSeconds) {
 
 function renderRotation() {
   boardEl.style.setProperty("--rot", rotationCount());
+}
+
+// ---------- Sweep: a row, column or box completed ----------
+
+const SWEEP_BANNER_MS = 1600; // matches the sweep-banner animation in style.css
+const UNIT_NAME_KEYS = { row: "unitRow", column: "unitColumn", box: "unitBox" };
+const UNIT_NAME_ORDER = Object.keys(UNIT_NAME_KEYS);
+const sweepBannerEl = document.getElementById("sweep-banner");
+let sweepBannerTimer = null;
+
+function celebrateSweep(units) {
+  playSweepWave(units);
+  showSweepBanner(units);
+}
+
+// Each unit lights up cell by cell, like a wave running through it
+function playSweepWave(units) {
+  const stepByCell = new Map();
+  for (const unit of units) {
+    unit.cells.forEach((cellIndex, step) => {
+      if (!stepByCell.has(cellIndex)) stepByCell.set(cellIndex, step);
+    });
+  }
+  for (const [cellIndex, step] of stepByCell) {
+    cells[cellIndex].style.setProperty("--sweep-step", step);
+    restartAnimation(cells[cellIndex], "swept");
+  }
+}
+
+function showSweepBanner(units) {
+  const visibleKinds = units.map(visibleKindOf);
+  visibleKinds.sort((first, second) => UNIT_NAME_ORDER.indexOf(first) - UNIT_NAME_ORDER.indexOf(second));
+  const names = visibleKinds.map((kind) => translate(UNIT_NAME_KEYS[kind]));
+  sweepBannerEl.textContent = translate("sweep", names);
+  restartAnimation(sweepBannerEl, "show");
+  clearTimeout(sweepBannerTimer);
+  sweepBannerTimer = setTimeout(hideSweepBanner, SWEEP_BANNER_MS);
+}
+
+function hideSweepBanner() {
+  sweepBannerEl.textContent = "";
+}
+
+// After a quarter or three-quarter turn a row runs up and down the screen,
+// so the banner names the line the way the player sees it
+function visibleKindOf(unit) {
+  const isTurnedSideways = rotationCount() % 2 === 1;
+  if (!isTurnedSideways || unit.kind === "box") return unit.kind;
+  return unit.kind === "row" ? "column" : "row";
 }
 
 function renderOverlay() {

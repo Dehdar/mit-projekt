@@ -6,6 +6,7 @@ internal readonly record struct Cell(int Row, int Column)
 
     public static Cell TopLeft => new(0, 0);
     public static Cell NextToTopLeft => new(0, 1);
+    public static Cell BelowTopLeft => new(1, 0);
     public static Cell BottomRight => new(8, 8);
 
     public int Index => Row * BoardSize + Column;
