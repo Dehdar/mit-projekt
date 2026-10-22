@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rotating Sudoku</title>
+  <title>Rainbow Kingdom Sudoku</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -73,6 +73,33 @@
       <polygon style="fill: currentColor" points="50,4 62,36 96,37 69,58 79,92 50,72 21,92 31,58 4,37 38,36"/>
       <path style="fill: var(--panel)" d="M50 68 C38 59 33 52 35 46 C37 40 45 39 50 45 C55 39 63 40 65 46 C67 52 62 59 50 68 Z"/>
     </symbol>
+    <!-- Stardust's head, shared by all her moods; each mood adds its own eyes, mouth and sparkles -->
+    <symbol id="stardust-head" viewBox="0 0 240 240">
+      <g style="stroke: var(--symbol-outline); stroke-width: 5; stroke-linejoin: round">
+        <polygon style="fill: var(--sym-unicorn)" points="62,92 70,40 104,78"/>
+        <polygon style="fill: var(--sym-unicorn)" points="178,92 170,40 136,78"/>
+        <polygon style="fill: var(--sym-unicorn-horn)" points="106,72 120,8 134,72"/>
+        <ellipse style="fill: var(--sym-unicorn)" cx="120" cy="140" rx="74" ry="66"/>
+        <circle style="fill: var(--sym-unicorn-mane)" cx="74" cy="84" r="20"/>
+        <circle style="fill: var(--sym-unicorn-mane)" cx="56" cy="110" r="18"/>
+        <circle style="fill: var(--sym-unicorn-mane)" cx="98" cy="72" r="16"/>
+        <circle style="fill: var(--sym-star)" cx="160" cy="80" r="9"/>
+      </g>
+      <!-- A soft muzzle without an outline, so she reads as a unicorn and not a piglet -->
+      <ellipse style="fill: var(--stardust-snout)" cx="120" cy="180" rx="34" ry="20"/>
+      <g style="fill: none; stroke: var(--symbol-outline); stroke-width: 3; stroke-linecap: round">
+        <line x1="112" y1="56" x2="128" y2="50"/>
+        <line x1="114" y1="38" x2="126" y2="33"/>
+      </g>
+      <g style="fill: var(--symbol-outline)">
+        <circle cx="108" cy="172" r="3"/>
+        <circle cx="132" cy="172" r="3"/>
+      </g>
+      <g style="fill: var(--sym-heart); opacity: 0.45">
+        <circle cx="68" cy="150" r="11"/>
+        <circle cx="172" cy="150" r="11"/>
+      </g>
+    </symbol>
   </svg>
   <main>
     <header>
@@ -80,133 +107,94 @@
         <button id="how-to-play" class="secondary" data-i18n-label="howToPlay">?</button>
         <button id="lang" class="secondary" data-i18n="otherLang">Dansk</button>
       </div>
-      <h1 data-i18n="title">Rotating Sudoku</h1>
+      <h1 data-i18n="title">Rainbow Kingdom Sudoku</h1>
       <div class="stats">
         <div class="stat"><span class="label" data-i18n="level">Level</span><span id="level">1 / 20</span></div>
       </div>
     </header>
 
-    <!-- Mochi, the cat who comments on (and disrupts) your game -->
-    <div id="mascot" data-mood="curious">
+    <!-- Stardust, the young unicorn who cheers the player on; one drawing per mood -->
+    <div id="mascot" data-mood="happy">
       <div class="mascot-art" aria-hidden="true">
-        <svg class="mood mood-curious" viewBox="0 0 240 240">
-          <g class="m-q">
-            <text x="200" y="58" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="40" fill="#2A2230">?</text>
-            <circle cx="178" cy="78" r="4" fill="#2A2230"></circle>
-            <circle cx="168" cy="92" r="3" fill="#2A2230"></circle>
-          </g>
-          <g class="m-head">
-            <g transform="rotate(-10 120 150)">
-              <g stroke="#2A2230" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M56 118 L64 62 L104 96 Z" fill="#FFFFFF"></path>
-                <path d="M184 118 L176 62 L136 96 Z" fill="#FFFFFF"></path>
-                <path d="M190 176 C216 172 224 146 208 136" fill="none"></path>
-                <ellipse cx="120" cy="152" rx="86" ry="66" fill="#FFFFFF"></ellipse>
-                <ellipse cx="96" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
-                <ellipse cx="150" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
-              </g>
-              <path d="M68 76 L74 100 L90 94 Z" fill="#F49FB0"></path>
-              <path d="M172 76 L166 100 L150 94 Z" fill="#F49FB0"></path>
-              <ellipse cx="80" cy="168" rx="11" ry="6" fill="#F49FB0"></ellipse>
-              <ellipse cx="160" cy="168" rx="11" ry="6" fill="#F49FB0"></ellipse>
-              <g fill="none" stroke="#2A2230" stroke-width="4" stroke-linecap="round">
-                <path d="M84 144 L106 146"></path>
-                <path d="M84 130 L106 136"></path>
-                <path d="M134 126 Q146 120 158 126"></path>
-                <path d="M112 172 Q120 168 128 172"></path>
-              </g>
-              <g class="m-look">
-                <circle cx="146" cy="142" r="11" fill="#2A2230"></circle>
-                <circle cx="150" cy="137" r="3.5" fill="#FFFFFF"></circle>
-              </g>
-              <path d="M115 157 L125 157 L120 162 Z" fill="#F07C98"></path>
-              <g stroke="#2A2230" stroke-width="3" stroke-linecap="round">
-                <path d="M56 156 L34 150"></path>
-                <path d="M56 166 L34 170"></path>
-                <path d="M184 156 L206 150"></path>
-              </g>
-              <path d="M118 206 C108 196 112 180 126 180 C140 180 146 194 140 204 C134 212 124 212 118 206 Z" fill="#FFFFFF" stroke="#2A2230" stroke-width="4" stroke-linejoin="round"></path>
-              <path d="M124 186 L122 193 M133 186 L133 193" stroke="#2A2230" stroke-width="3" stroke-linecap="round"></path>
+        <svg class="mood mood-happy" viewBox="0 0 240 240">
+          <g class="s-bob">
+            <use href="#stardust-head"/>
+            <g style="fill: var(--symbol-outline)">
+              <circle cx="94" cy="128" r="11"/>
+              <circle cx="146" cy="128" r="11"/>
             </g>
+            <g style="fill: #ffffff">
+              <circle cx="98" cy="124" r="4"/>
+              <circle cx="150" cy="124" r="4"/>
+            </g>
+            <path style="fill: none; stroke: var(--symbol-outline); stroke-width: 4; stroke-linecap: round" d="M108 190 Q120 198 132 190"/>
           </g>
         </svg>
 
-        <svg class="mood mood-shocked" viewBox="0 0 240 240">
-          <g class="m-lines" stroke="#2A2230" stroke-width="4" stroke-linecap="round">
-            <path d="M28 60 L42 74"></path>
-            <path d="M20 92 L38 96"></path>
-            <path d="M212 60 L198 74"></path>
-            <path d="M220 92 L202 96"></path>
-            <path d="M120 18 L120 36"></path>
+        <svg class="mood mood-thinking" viewBox="0 0 240 240">
+          <g class="s-tilt">
+            <use href="#stardust-head"/>
+            <g style="fill: var(--symbol-outline)">
+              <circle cx="98" cy="122" r="11"/>
+              <circle cx="150" cy="122" r="11"/>
+            </g>
+            <g style="fill: #ffffff">
+              <circle cx="103" cy="117" r="4"/>
+              <circle cx="155" cy="117" r="4"/>
+            </g>
+            <circle style="fill: var(--symbol-outline)" cx="128" cy="192" r="5"/>
           </g>
-          <g class="m-jump">
-            <g stroke="#2A2230" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M58 116 L62 48 L104 94 Z" fill="#FFFFFF"></path>
-              <path d="M182 116 L178 48 L136 94 Z" fill="#FFFFFF"></path>
-              <path d="M190 178 L208 168 L204 186 L222 180" fill="none"></path>
-              <ellipse cx="120" cy="150" rx="84" ry="70" fill="#FFFFFF"></ellipse>
-              <ellipse cx="92" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
-              <ellipse cx="148" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
-              <circle cx="94" cy="140" r="17" fill="#FFFFFF"></circle>
-              <circle cx="146" cy="140" r="17" fill="#FFFFFF"></circle>
-            </g>
-            <path d="M66 64 L68 98 L90 92 Z" fill="#F49FB0"></path>
-            <path d="M174 64 L172 98 L150 92 Z" fill="#F49FB0"></path>
-            <circle cx="94" cy="140" r="5" fill="#2A2230"></circle>
-            <circle cx="146" cy="140" r="5" fill="#2A2230"></circle>
-            <ellipse cx="78" cy="170" rx="10" ry="6" fill="#F49FB0"></ellipse>
-            <ellipse cx="162" cy="170" rx="10" ry="6" fill="#F49FB0"></ellipse>
-            <path d="M115 160 L125 160 L120 165 Z" fill="#F07C98"></path>
-            <ellipse cx="120" cy="184" rx="11" ry="14" fill="#2A2230" stroke="#2A2230" stroke-width="4"></ellipse>
-            <ellipse cx="120" cy="190" rx="6" ry="5" fill="#F07C98"></ellipse>
-            <g stroke="#2A2230" stroke-width="3" stroke-linecap="round">
-              <path d="M56 154 L32 146"></path>
-              <path d="M56 166 L32 168"></path>
-              <path d="M184 154 L208 146"></path>
-              <path d="M184 166 L208 168"></path>
-            </g>
-            <path class="m-sweat" d="M186 96 C180 108 178 114 184 118 C190 122 196 114 186 96 Z" fill="#9AD4F5" stroke="#2A2230" stroke-width="3" stroke-linejoin="round"></path>
+          <g class="s-twinkle" style="fill: var(--sym-star); stroke: var(--symbol-outline); stroke-width: 3; stroke-linejoin: round">
+            <polygon points="196,30 201,44 215,48 201,52 196,66 191,52 177,48 191,44"/>
+            <polygon points="218,78 221,86 229,88 221,90 218,98 215,90 207,88 215,86"/>
           </g>
         </svg>
 
-        <svg class="mood mood-trash" viewBox="0 0 240 240">
-          <g class="m-pop">
-            <path d="M150 22 L222 22 Q232 22 232 32 L232 62 Q232 72 222 72 L178 72 L164 86 L166 72 L150 72 Q140 72 140 62 L140 32 Q140 22 150 22 Z" fill="#FFFFFF" stroke="#2A2230" stroke-width="4" stroke-linejoin="round"></path>
-            <text x="186" y="55" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="24" fill="#2A2230">#@%!</text>
+        <svg class="mood mood-celebrating" viewBox="0 0 240 240">
+          <g class="s-jump">
+            <use href="#stardust-head"/>
+            <g style="fill: none; stroke: var(--symbol-outline); stroke-width: 5; stroke-linecap: round">
+              <path d="M82 132 Q94 116 106 132"/>
+              <path d="M134 132 Q146 116 158 132"/>
+            </g>
+            <path style="fill: var(--sym-heart); stroke: var(--symbol-outline); stroke-width: 4; stroke-linejoin: round" d="M104 186 Q120 210 136 186 Z"/>
           </g>
-          <g class="m-rock">
-            <g stroke="#2A2230" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M48 124 L54 72 L98 100 Z" fill="#FFFFFF"></path>
-              <path d="M176 108 L184 60 L142 92 Z" fill="#FFFFFF"></path>
-              <path d="M40 178 C14 176 8 150 24 140" fill="none"></path>
-              <ellipse cx="116" cy="154" rx="84" ry="66" fill="#FFFFFF"></ellipse>
-              <ellipse cx="88" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
-              <ellipse cx="144" cy="218" rx="14" ry="7" fill="#FFFFFF"></ellipse>
+          <g class="s-sparkle">
+            <polygon style="fill: var(--sym-star); stroke: var(--symbol-outline); stroke-width: 3" points="30,60 35,74 49,78 35,82 30,96 25,82 11,78 25,74"/>
+            <polygon style="fill: var(--sym-raindrop); stroke: var(--symbol-outline); stroke-width: 3" points="210,40 214,51 225,54 214,57 210,68 206,57 195,54 206,51"/>
+            <circle style="fill: var(--sym-heart)" cx="214" cy="120" r="7"/>
+            <circle style="fill: var(--sym-gem)" cx="22" cy="134" r="6"/>
+          </g>
+        </svg>
+
+        <svg class="mood mood-comforting" viewBox="0 0 240 240">
+          <g class="s-sway">
+            <use href="#stardust-head"/>
+            <g style="fill: none; stroke: var(--symbol-outline); stroke-width: 5; stroke-linecap: round">
+              <path d="M84 126 Q94 136 104 126"/>
+              <path d="M136 126 Q146 136 156 126"/>
             </g>
-            <path d="M58 86 L62 110 L84 102 Z" fill="#F49FB0"></path>
-            <path d="M176 74 L170 98 L152 92 Z" fill="#F49FB0"></path>
-            <ellipse cx="74" cy="170" rx="11" ry="6" fill="#F49FB0"></ellipse>
-            <ellipse cx="156" cy="170" rx="11" ry="6" fill="#F49FB0"></ellipse>
-            <path d="M80 150 Q94 148 108 150 Q100 160 88 158 Z" fill="#2A2230"></path>
-            <path d="M126 148 Q140 146 154 148 Q146 158 134 156 Z" fill="#2A2230"></path>
-            <circle cx="102" cy="152" r="2" fill="#FFFFFF"></circle>
-            <circle cx="148" cy="150" r="2" fill="#FFFFFF"></circle>
-            <g fill="none" stroke="#2A2230" stroke-width="4" stroke-linecap="round">
-              <path d="M78 150 L110 150"></path>
-              <path d="M124 148 L156 148"></path>
-              <path d="M82 134 L106 138"></path>
-              <path class="m-brow" d="M126 128 Q140 120 154 128"></path>
-              <path d="M104 176 Q118 182 134 170"></path>
+            <path style="fill: none; stroke: var(--symbol-outline); stroke-width: 4; stroke-linecap: round" d="M110 192 Q120 198 130 192"/>
+          </g>
+          <path class="s-float" style="fill: var(--sym-heart); stroke: var(--symbol-outline); stroke-width: 3; stroke-linejoin: round"
+            d="M204 74 C192 64 186 56 189 49 C192 42 200 42 204 49 C208 42 216 42 219 49 C222 56 216 64 204 74 Z"/>
+        </svg>
+
+        <svg class="mood mood-oops" viewBox="0 0 240 240">
+          <g class="s-wiggle">
+            <use href="#stardust-head"/>
+            <g style="fill: none; stroke: var(--symbol-outline); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round">
+              <polyline points="84,118 102,128 84,138"/>
+              <polyline points="156,118 138,128 156,138"/>
             </g>
-            <path d="M111 163 L121 163 L116 168 Z" fill="#F07C98"></path>
-            <g stroke="#2A2230" stroke-width="3" stroke-linecap="round">
-              <path d="M52 158 L30 152"></path>
-              <path d="M52 168 L30 172"></path>
-            </g>
-            <g class="m-paw">
-              <path d="M158 196 C150 184 154 168 168 166 C182 164 192 176 186 190 C182 200 166 204 158 196 Z" fill="#FFFFFF" stroke="#2A2230" stroke-width="4" stroke-linejoin="round"></path>
-              <path d="M166 172 L164 180 M176 170 L176 178" stroke="#2A2230" stroke-width="3" stroke-linecap="round"></path>
-            </g>
+            <ellipse style="fill: var(--symbol-outline)" cx="120" cy="194" rx="9" ry="6"/>
+          </g>
+          <g class="s-puff">
+            <circle style="fill: var(--sym-star)" cx="94" cy="214" r="9"/>
+            <circle style="fill: var(--sym-heart)" cx="120" cy="228" r="8"/>
+            <circle style="fill: var(--sym-raindrop)" cx="148" cy="214" r="9"/>
+            <circle style="fill: var(--sym-moon)" cx="172" cy="230" r="7"/>
+            <circle style="fill: var(--sym-gem)" cx="70" cy="230" r="7"/>
           </g>
         </svg>
       </div>

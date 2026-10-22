@@ -10,7 +10,8 @@ internal sealed class SudokuPage(IPage page)
     private BoardShape shape = BoardShape.NineByNine;
 
     public ILocator Board => page.GetByTestId("board");
-    public ILocator MochiSpeech => page.GetByRole(AriaRole.Status);
+    public ILocator BoardFrame => Board.Locator("..");
+    public ILocator StardustSpeech => page.GetByRole(AriaRole.Status);
 
     public ILocator Cells => page.GetByTestId("cell");
     public ILocator CellAt(Cell cell) => Cells.Nth(shape.IndexOf(cell));
@@ -44,6 +45,10 @@ internal sealed class SudokuPage(IPage page)
     }
 
     public async Task ReloadAsync() => await page.ReloadAsync();
+
+    // Lets a test pick what Math.random returns, for behaviour that only happens by chance
+    public async Task FixRandomAsync(double value) =>
+        await page.AddInitScriptAsync($"Math.random = () => {value.ToString(System.Globalization.CultureInfo.InvariantCulture)};");
 
     // The lesson asks for the heart, then the star and the moon
     public async Task PlayTheLessonAsync()

@@ -13,7 +13,7 @@ public class LanguageTests : SudokuTest
         await Game.Button("Dansk").ClickAsync();
 
         await Expect(Game.Button("Slet")).ToBeVisibleAsync();
-        await Expect(Game.Heading("Rotating Sudoku")).ToBeVisibleAsync();
+        await Expect(Game.Heading("Rainbow Kingdom Sudoku")).ToBeVisibleAsync();
     }
 
     [Test]

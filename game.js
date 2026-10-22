@@ -1,4 +1,4 @@
-// Rotating Sudoku: a calm sudoku with no clock and no game over. Finishing a level earns stars.
+// Rainbow Kingdom Sudoku: a calm sudoku with no clock and no game over. Finishing a level earns stars.
 // The board grows from 4x4 to 6x6 to 9x9, and from level 3 on it twirls a quarter turn
 // after every few correct digits.
 
@@ -111,7 +111,7 @@ function startLevel(level) {
   selectedCellIndex = null;
   saveGame();
   showLevel();
-  mochi("start");
+  stardust("start");
 }
 
 function resumeOrStartGame() {
@@ -122,7 +122,7 @@ function resumeOrStartGame() {
   }
   state = saved;
   showLevel();
-  mochi(state.status === STATUS.PLAYING ? "start" : state.status);
+  stardust(state.status === STATUS.PLAYING ? "start" : state.status);
 }
 
 // A new level may have a different board size, so the cells and number buttons are built for it
@@ -136,7 +136,7 @@ function selectCell(cellIndex) {
   if (state.status !== STATUS.PLAYING) return;
   selectedCellIndex = cellIndex;
   renderBoard();
-  if (state.puzzle[cellIndex] === EMPTY) mochi("select");
+  if (state.puzzle[cellIndex] === EMPTY) stardust("select");
 }
 
 function enterDigit(digit) {
@@ -151,7 +151,7 @@ function enterDigit(digit) {
   const sweptUnits = unitsSweptAt(selectedCellIndex);
   if (sweptUnits.length > 0) celebrateSweep(sweptUnits);
   if (twirled) playTwirl();
-  mochi(mochiReactionTo(digit, { swept: sweptUnits.length > 0, twirled }));
+  stardust(stardustReactionTo(digit, { swept: sweptUnits.length > 0, twirled }));
 }
 
 // The picture wobbles so the child notices, without a red error mark
@@ -180,7 +180,7 @@ function canEditSelectedCell() {
 }
 
 // The biggest moment wins: the level ending, then a sweep, then a twirl, then the digit itself
-function mochiReactionTo(digit, { swept, twirled }) {
+function stardustReactionTo(digit, { swept, twirled }) {
   if (state.status !== STATUS.PLAYING) return state.status;
   if (swept) return "sweep";
   if (twirled) return "rotate";
@@ -283,7 +283,7 @@ function isFirstVisit() {
 }
 
 function showLesson() {
-  silenceMochi();
+  silenceStardust();
   openLesson(markLessonDone);
 }
 
@@ -492,7 +492,7 @@ function switchLanguage() {
   createNumpadButtons();
   renderBoard();
   renderOverlay();
-  silenceMochi();
+  silenceStardust();
 }
 
 document.addEventListener("keydown", handleKeyDown);

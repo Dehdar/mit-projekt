@@ -1,168 +1,158 @@
-// Mochi, the cat who teases you while you play.
-// She is curious while you look, shocked when you get it right,
-// and talks trash when you make mistakes.
-// Sometimes she gives the board a shove so it shakes.
+// Stardust, a young unicorn who is still learning magic and cheers the player on.
+// Her spells go slightly wrong, so the child is the expert and she is the happy helper.
+// She praises how the child worked things out, comforts after a mistake, and never nags.
 
 const REACTION_DURATION_MS = 3500;
-const PUSH_CHANCE = 0.3;
 const COMMENT_CHANCE = 0.5;
-const RESTING_MOOD = "curious";
+const RESTING_MOOD = "happy";
 
 // Events that happen so often that she only comments on some of them
-const FREQUENT_EVENTS = ["select", "rotate"];
-const PROVOKING_EVENTS = ["wrong"];
+const FREQUENT_EVENTS = ["select", "right", "rotate"];
 const GAME_OVER_EVENTS = ["won", "finished"];
 
+// The board shows pictures, so no line mentions numbers
 const LINES = {
   da: {
-    wrong: [
-      "Haha, nej. Bare nej.",
-      "Er det dit endelige svar? Det er forkert.",
-      "Wow. Modigt. Forkert, men modigt.",
-      "Min bedstemor løser det her hurtigere. Hun er en kat.",
-      "Har du overvejet kryds og bolle i stedet?",
-      "Jeg så det. Alle så det.",
-      "Den tæller vi som en øvelse.",
-      "Sikke en flot fejl. Skal den indrammes?",
-    ],
-    push: [
-      "Ups. Min pote smuttede.",
-      "Skub! Vågn op!",
-      "Hov, stod det der før?",
-      "Jeg skubber bare lidt. Det hjælper.",
-      "Katte skubber ting. Det er vores job.",
-    ],
-    right: [
-      "Hvad?! Det var faktisk rigtigt.",
-      "Okay, okay... held.",
-      "Vent, hvordan vidste du det?",
-      "Det tæller ikke, jeg kiggede ikke.",
-      "Selv en blind høne finder et korn.",
-      "Snyder du? Du snyder.",
-    ],
-    sweep: [
-      "Ni ud af ni? Begynderheld gange ni.",
-      "Pænt. Mistænkeligt pænt.",
-      "Jeg skulle have sovet lige der.",
-      "Hold op med at rydde op. Det er MIT hus.",
-      "Nu er der intet at skubbe ned derfra. Tak for ingenting.",
-      "Bliv nu ikke kæphøj. Brættet drejer snart.",
-      "Hvem har lært dig det? Ikke mig.",
-    ],
-    erase: [
-      "Fortryder du allerede?",
-      "Ja, slet beviserne.",
-      "Hmm, mistede du modet?",
+    start: [
+      "En ny opgave! Jeg holder farverne, du tænker.",
+      "Uh, nye billeder! Hvor skal vi starte?",
+      "Jeg har pudset mit horn til den her. Klar, når du er!",
+      "Lad os finde ud af, hvor hvert billede bor.",
+      "Jeg prøvede at trylle den løst. Den blev til suppe. Din tur!",
     ],
     select: [
-      "Hmm... den der? Interessant valg.",
-      "Hvad kigger du på?",
-      "Jeg ville ikke vælge den. Men gør bare.",
-      "Spændende. Lad os se, hvor galt det går.",
-      "Hmmmm...",
-      "Er du sikker på, det er den rigtige?",
+      "Hmm, den der? Lad os kigge på rækken.",
+      "Godt valgt. Hvad mangler der i boksen?",
+      "Uh, et mysteriefelt!",
+      "Kig ned ad kolonnen. Hvilket billede gemmer sig?",
+      "Jeg ville gætte på en kage. Derfor er det dig, der bestemmer.",
+      "Lad os se, hvem der bor ved siden af.",
+      "Tryk på et billede, når du er sikker.",
+    ],
+    right: [
+      "Ja! Min manke krøllede helt ekstra.",
+      "Lige i øjet! Du tjekkede både række og kolonne.",
+      "Det billede ser ud til at føle sig hjemme.",
+      "Glimmer-godt!",
+      "Du kiggede grundigt, og det virkede!",
+      "Det trick skriver jeg ned i min tryllebog.",
+      "Godt tænkt! Endnu et billede på plads.",
+    ],
+    sweep: [
+      "En hel linje! Nu laver jeg min glade hovdans!",
+      "Du fyldte det hele ud. Se, hvor det skinner!",
+      "Hvert billede på sin plads. Magi!",
+      "Den linje funkler. Du tjekkede hvert eneste felt.",
+    ],
+    wrong: [
+      "Hmm, det billede ser lidt faret vild ud. Skal vi finde et nyt hjem til det?",
+      "Hovsa! Selv mine trylleformularer vakler nogle gange.",
+      "Ikke helt. Kig efter en tvilling i rækken.",
+      "Tæt på! Kig på boksen en gang til.",
+      "Sådan lærer man. Prøv et andet billede.",
+      "Mit horn siger: kig på kolonnen.",
+      "Bare rolig. Fejl er bare øvelse i forklædning.",
+    ],
+    erase: [
+      "Puf! Væk, ligesom mine lektier.",
+      "En frisk start til det felt.",
+      "God idé at prøve igen.",
     ],
     rotate: [
-      "Wheee! Rundt vi går.",
-      "Ups, nu står det hele på hovedet.",
-      "Fandt du lige det felt? Nu er det væk.",
+      "Atju! Jeg nøs glimmer, og så snurrede brættet rundt.",
+      "Ups, min tryllestav smuttede. Wiii!",
+      "Snurretid! Billederne bliver stående, det lover jeg.",
+      "Jeg ville trylle en regnbue. Det blev en snurretur.",
+      "Rundt vi går! Rækker er kolonner nu, hvor sjovt.",
     ],
     won: [
-      "NEJ! Du klarede det?! Jeg kræver omkamp.",
-      "Det må have været snyd. Det SKAL have været snyd.",
-      "Fint. Næste level knækker dig.",
+      "Du klarede det! Løst, ét billede ad gangen.",
+      "Hurra! Jeg slår vejrmøller. Altså, hovmøller.",
+      "Wow, du gav ikke op. Det er ægte magi.",
     ],
-    finished: ["Alle 20 levels?! Jeg... har ingen ord. Næsten."],
-    start: [
-      "Nyt bræt. Jeg glæder mig til at se dig fejle.",
-      "Klar? Jeg holder øje med dig.",
-    ],
+    finished: ["Hver eneste opgave i hele kongeriget er løst! Det fortæller jeg hele regnbuen."],
   },
   en: {
-    wrong: [
-      "Haha, no. Just no.",
-      "Is that your final answer? It's wrong.",
-      "Wow. Brave. Wrong, but brave.",
-      "My grandma solves these faster. She's a cat.",
-      "Have you considered tic-tac-toe instead?",
-      "I saw that. Everyone saw that.",
-      "Let's call that one practice.",
-      "What a lovely mistake. Should I frame it?",
-    ],
-    push: [
-      "Oops. My paw slipped.",
-      "Shove! Wake up!",
-      "Huh, was that there before?",
-      "Just a little push. It helps.",
-      "Cats push things. It's our job.",
-    ],
-    right: [
-      "What?! That was actually right.",
-      "Okay, okay... luck.",
-      "Wait, how did you know that?",
-      "That doesn't count, I wasn't looking.",
-      "Even a broken clock is right twice a day.",
-      "Are you cheating? You're cheating.",
-    ],
-    sweep: [
-      "Nine for nine? Beginner's luck, times nine.",
-      "Neat. Suspiciously neat.",
-      "I was going to nap right there.",
-      "Stop tidying. This is MY house.",
-      "Great. Now there's nothing left to knock over there.",
-      "Don't get cocky. The board turns any second.",
-      "Who taught you that? Not me.",
-    ],
-    erase: [
-      "Regretting it already?",
-      "Yes, destroy the evidence.",
-      "Hmm, lost your nerve?",
+    start: [
+      "A new puzzle! I'll hold the crayons. You do the thinking.",
+      "Ooh, fresh pictures! Where shall we start?",
+      "I polished my horn for this one. Ready when you are!",
+      "Let's find where every picture lives.",
+      "I tried to solve this with magic. It turned into soup. Your turn!",
     ],
     select: [
-      "Hmm... that one? Interesting choice.",
-      "What are you looking at?",
-      "I wouldn't pick that one. But go ahead.",
-      "Exciting. Let's see how badly this goes.",
-      "Hmmmm...",
-      "Are you sure that's the right one?",
+      "Hmm, that one? Let's look at its row.",
+      "Good spot. What's missing in that box?",
+      "Ooh, a mystery square!",
+      "Peek at the column. Which picture is hiding?",
+      "I'd guess a cupcake. That's why you're in charge.",
+      "Let's see who lives next door.",
+      "Tap a picture when you're sure.",
+    ],
+    right: [
+      "Yes! My mane just went extra curly.",
+      "Spot on! You checked the row and the column.",
+      "That picture looks right at home.",
+      "Sparkle-tastic!",
+      "You looked carefully, and it worked!",
+      "I'm writing that trick down in my spell book.",
+      "Neat thinking! Another one fits.",
+    ],
+    sweep: [
+      "A whole line! Time for my happy hoof-dance!",
+      "You filled it all in. Look at it shine!",
+      "Every picture in its place. Magic!",
+      "That line sparkles. You checked every square.",
+    ],
+    wrong: [
+      "Hmm, that one looks a bit lost. Shall we find it a new home?",
+      "Oopsie! Even my spells wobble sometimes.",
+      "Not quite. Check the row for a twin.",
+      "Close! Peek at the box once more.",
+      "That's how we learn. Try another picture.",
+      "My horn says: look at the column.",
+      "No worries. Mistakes are just practice in disguise.",
+    ],
+    erase: [
+      "Poof! Gone, like my homework.",
+      "A fresh start for that square.",
+      "Good idea to try again.",
     ],
     rotate: [
-      "Wheee! Round and round.",
-      "Oops, now it's all upside down.",
-      "Did you just find that cell? Now it's gone.",
+      "Achoo! I sneezed glitter and the board did a twirl.",
+      "Oops, my wand slipped. Wheee!",
+      "Twirl time! The pictures stay standing, I promise.",
+      "I meant to make a rainbow. I made a spin instead.",
+      "Round we go! Rows are columns now, how fun.",
     ],
     won: [
-      "NO! You did it?! I demand a rematch.",
-      "That must have been cheating. It HAS to be.",
-      "Fine. The next level will break you.",
+      "You did it! Solved, one picture at a time.",
+      "Hooray! I'm doing a cartwheel. Well, a hoofwheel.",
+      "Wow, you didn't give up. That's real magic.",
     ],
-    finished: ["All 20 levels?! I... have no words. Almost."],
-    start: [
-      "New board. I can't wait to watch you fail.",
-      "Ready? I'm watching you.",
-    ],
+    finished: ["Every puzzle in the kingdom, solved! I'll tell the whole rainbow."],
   },
 };
 
 // Which face belongs to which event
 const MOODS = {
-  wrong: "trash", push: "trash", erase: "trash", rotate: "trash", start: "trash",
-  right: "shocked", sweep: "shocked", won: "shocked", finished: "shocked",
-  select: RESTING_MOOD,
+  start: RESTING_MOOD,
+  select: "thinking",
+  right: "celebrating", sweep: "celebrating", won: "celebrating", finished: "celebrating",
+  wrong: "comforting", erase: "comforting",
+  rotate: "oops",
 };
 
 const mascotEl = document.getElementById("mascot");
-const mascotArtEl = mascotEl.querySelector(".mascot-art");
 const bubbleEl = document.getElementById("mascot-bubble");
-const boardWrapEl = document.querySelector(".board-wrap");
 let lastLine = "";
 let calmDownTimer = null;
 let isGameRunning = false;
 
-// Called from the game: "select", "right", "sweep" (a row, column or box completed), "wrong", "erase", "rotate", "start", "won", "finished"
-function mochi(event) {
+// Called from the game with one of the events in MOODS
+function stardust(event) {
   trackGameProgress(event);
-  if (wantsToComment(event)) react(maybeEscalateToPush(event));
+  if (wantsToComment(event)) react(event);
 }
 
 function trackGameProgress(event) {
@@ -170,21 +160,16 @@ function trackGameProgress(event) {
   if (GAME_OVER_EVENTS.includes(event)) isGameRunning = false;
 }
 
-// She cannot be bothered to comment on every single click
+// A comment on every single tap would drown the game, so frequent moments get one only now and then
 function wantsToComment(event) {
   return !FREQUENT_EVENTS.includes(event) || Math.random() < COMMENT_CHANCE;
 }
 
-function maybeEscalateToPush(event) {
-  return PROVOKING_EVENTS.includes(event) && Math.random() < PUSH_CHANCE ? "push" : event;
-}
-
 function react(event) {
-  if (event === "push") shoveBoard();
   clearTimeout(calmDownTimer);
   setMood(MOODS[event]);
   say(pickLine(event));
-  // After the game ends she stays in her reaction
+  // After the level ends she keeps celebrating
   if (isGameRunning) calmDownTimer = setTimeout(calmDown, REACTION_DURATION_MS);
 }
 
@@ -213,18 +198,7 @@ function say(text) {
   restartAnimation(bubbleEl, "pop");
 }
 
-function shoveBoard() {
-  restartAnimation(mascotArtEl, "push");
-  restartAnimation(boardWrapEl, "shake");
-}
-
-// When the language changes she must not keep talking in the old language
-function silenceMochi() {
+// When the language changes or the lesson opens she must not keep talking
+function silenceStardust() {
   say("");
 }
-
-function pushWhenClicked() {
-  if (isGameRunning) mochi("push");
-}
-
-mascotArtEl.addEventListener("click", pushWhenClicked);
