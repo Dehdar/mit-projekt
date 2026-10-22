@@ -29,6 +29,10 @@ The first time on a new machine, build and install the browser with `pwsh bin/De
 - `SavedGame` seeds a known board into `localStorage` (two empty cells by default, so one entry does not win); `SudokuPage` is the page object holding locators and user actions. Assertions stay in the test classes.
 - The game exposes test hooks only where nothing user-visible identifies an element: `data-testid="cell"` / `"board"`; Mochi's bubble has `role="status"`.
 
+## MCP servers
+
+`.mcp.json` defines the `google-drive` server (Google's hosted Drive MCP). Google has no automatic client registration, so it signs in with the owner's Google Cloud OAuth client (Desktop app type, Drive API enabled, each user added as a test user): its ID goes in `oauth.clientId`; the client secret is never committed (`claude mcp add` prompts for it, or set `MCP_CLIENT_SECRET`). Approve the server and sign in once with `/mcp` in a terminal `claude` session. Turn off the claude.ai Google Drive connector, or every Drive tool appears twice.
+
 ## Conventions
 
 - **Language:** everything is in English: code, comments, docs, commit messages and the default UI language. Danish exists only as a UI translation (`da` in `i18n.js`, `LINES.da` in `mascot.js`). The game is called "Rotating Sudoku" in both languages.
