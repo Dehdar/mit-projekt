@@ -14,25 +14,31 @@ Tests prove behaviour; a playtest judges whether it is fun. Do both.
 
 ## Reach the moment you want to judge
 
-Do not wait in real time for a late level or the game-over screen. Set up a save in `localStorage` with `javascript_tool` and reload:
+Do not play through every level to reach a late one. The quickest way is to start a fresh level from `javascript_tool`; `startLevel` is a global in `game.js`:
 
 ```js
-localStorage.setItem("rotating-sudoku", JSON.stringify({
-  level: 10, puzzle, solution, board, timeLeft: 30, status: "playing",
+startLevel(16); // the first 9x9 level
+```
+
+To judge a specific board (for example one correct digit before a twirl, or one cell from solved), set up a save in `localStorage` and reload:
+
+```js
+localStorage.setItem("rainbow-kingdom", JSON.stringify({
+  level: 3, puzzle, solution, board, oopsies: 0, wandsUsed: 0, twirls: 0, status: "playing",
 }));
 location.reload();
 ```
 
-`puzzle`, `solution` and `board` are 81-number arrays (0 = empty). The quickest source is the current game: read `JSON.parse(localStorage.getItem("rotating-sudoku"))`, change `level` or `timeLeft`, and write it back. Use `localStorage.setItem("rotating-sudoku-language", "da")` to check the Danish version.
+`puzzle`, `solution` and `board` are arrays of `size * size` numbers (0 = empty), and the size must match the level's board in `LEVELS` (4x4 on levels 1–5, 6x6 on 6–15, 9x9 on 16–20), or the save is ignored. The quickest source is the current game: read `JSON.parse(localStorage.getItem("rainbow-kingdom"))`, change it, and write it back. Stars live under `rainbow-kingdom-progress` as `{ starsByLevel: { "3": 1 } }`. Use `localStorage.setItem("rotating-sudoku-language", "da")` to check the Danish version.
 
 ## What to look at
 
 - **First 30 seconds:** is it obvious what to do? Does Mochi's first line land?
-- **Rotation:** is the 10-second turn readable, or disorienting in a bad way?
+- **Twirl:** does the glow warn early enough? Is the turn readable and fun, or disorienting in a bad way? Do the digits stay upright?
 - **Mochi:** read several lines per event in the bubble. Are any cut off, repeated too often or out of character?
-- **Pressure:** does the last-minute warning create tension? Does game over feel fair?
-- **Reward:** does completing a level feel good enough to want the next one?
-- **Phone width:** use `resize_window` with the `mobile` preset, then `desktop` again when done.
+- **Challenge:** there is no clock, so does the level still make the player think? Is the first level easy enough for a six-year-old?
+- **Reward:** does completing a level feel good enough to want the next one? Do the stars show clearly how to earn the missing one?
+- **Phone width:** use `resize_window` with the `mobile` preset, then `desktop` again when done. Check the cells and number buttons are easy to tap on every board size.
 - **Reduced motion and dark mode:** check new animations and colours with both.
 
 Take a screenshot of anything you change visually and include it in your report or PR.
