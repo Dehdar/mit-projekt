@@ -13,7 +13,7 @@ const RESTING_MOOD = "curious";
 // Events that happen so often that she only comments on some of them
 const FREQUENT_EVENTS = ["select", "rotate"];
 const PROVOKING_EVENTS = ["slow", "wrong"];
-const PLAYER_ACTION_EVENTS = ["right", "wrong", "erase", "start"];
+const PLAYER_ACTION_EVENTS = ["right", "sweep", "wrong", "erase", "start"];
 const GAME_OVER_EVENTS = ["won", "finished", "lost"];
 
 const LINES = {
@@ -51,6 +51,15 @@ const LINES = {
       "Det tæller ikke, jeg kiggede ikke.",
       "Selv en blind høne finder et korn.",
       "Snyder du? Du snyder.",
+    ],
+    sweep: [
+      "Ni ud af ni? Begynderheld gange ni.",
+      "Pænt. Mistænkeligt pænt.",
+      "Jeg skulle have sovet lige der.",
+      "Hold op med at rydde op. Det er MIT hus.",
+      "Nu er der intet at skubbe ned derfra. Tak for ingenting.",
+      "Bliv nu ikke kæphøj. Brættet drejer snart.",
+      "Hvem har lært dig det? Ikke mig.",
     ],
     erase: [
       "Fortryder du allerede?",
@@ -121,6 +130,15 @@ const LINES = {
       "Even a broken clock is right twice a day.",
       "Are you cheating? You're cheating.",
     ],
+    sweep: [
+      "Nine for nine? Beginner's luck, times nine.",
+      "Neat. Suspiciously neat.",
+      "I was going to nap right there.",
+      "Stop tidying. This is MY house.",
+      "Great. Now there's nothing left to knock over there.",
+      "Don't get cocky. The board turns any second.",
+      "Who taught you that? Not me.",
+    ],
     erase: [
       "Regretting it already?",
       "Yes, destroy the evidence.",
@@ -160,7 +178,7 @@ const LINES = {
 // Which face belongs to which event
 const MOODS = {
   wrong: "trash", slow: "trash", push: "trash", erase: "trash", rotate: "trash", lost: "trash", start: "trash",
-  right: "shocked", won: "shocked", finished: "shocked",
+  right: "shocked", sweep: "shocked", won: "shocked", finished: "shocked",
   select: RESTING_MOOD,
 };
 
@@ -173,7 +191,7 @@ let calmDownTimer = null;
 let idleSeconds = 0;
 let isGameRunning = false;
 
-// Called from the game: "select", "right", "wrong", "erase", "rotate", "start", "won", "finished", "lost"
+// Called from the game: "select", "right", "sweep" (a row, column or box completed), "wrong", "erase", "rotate", "start", "won", "finished", "lost"
 function mochi(event) {
   trackGameProgress(event);
   if (wantsToComment(event)) react(maybeEscalateToPush(event));

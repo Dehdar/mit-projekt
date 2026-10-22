@@ -16,6 +16,9 @@
   --overlay: rgba(20, 22, 28, 0.6);
   --content-width: 450px;
   --rotate-duration: 0.6s;
+  --sweep: #fde047;
+  --sweep-banner: #f59e0b;
+  --sweep-banner-ink: #1f2430;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -34,6 +37,7 @@
     --conflict-bg: #3b1d1d;
     --accent: #3b82f6;
     --overlay: rgba(0, 0, 0, 0.65);
+    --sweep: #a16207;
   }
 }
 
@@ -362,6 +366,54 @@ button.secondary {
   80% { transform: translate(-1px, 0) rotate(0); }
 }
 
+/* Sweep: a completed row, column or box lights up in a wave and gets a banner */
+
+.cell.swept {
+  position: relative; /* keeps the growing cell above its neighbours */
+  z-index: 1;
+  animation: sweep-cell 0.6s ease-out calc(var(--sweep-step, 0) * 45ms);
+}
+
+@keyframes sweep-cell {
+  0% { background: var(--sweep); transform: scale(1); }
+  35% { background: var(--sweep); transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+#sweep-banner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--sweep-banner);
+  color: var(--sweep-banner-ink);
+  font-size: clamp(1rem, 5vw, 1.35rem);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  z-index: 2; /* above the swept cells, which grow over their neighbours */
+  transform: translate(-50%, -50%);
+}
+
+#sweep-banner:empty {
+  display: none;
+}
+
+/* Lasts as long as SWEEP_BANNER_MS in game.js */
+#sweep-banner.show {
+  animation: sweep-banner 1.6s ease-out forwards;
+}
+
+@keyframes sweep-banner {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+  15% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  25%, 75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -80%) scale(1); opacity: 0; }
+}
+
 /* Language button */
 
 header {
@@ -382,7 +434,8 @@ header {
 @media (prefers-reduced-motion: reduce) {
   .m-head, .m-look, .m-q, .m-jump, .m-lines, .m-sweat, .m-rock, .m-brow, .m-paw, .m-pop,
   .mascot-art.push, .board-wrap.shake,
-  #mascot-bubble.pop {
+  #mascot-bubble.pop,
+  .cell.swept, #sweep-banner.show {
     animation: none;
   }
 }

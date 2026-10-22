@@ -11,6 +11,7 @@ A fast-paced sudoku where the board rotates 90° every 10 seconds, so you consta
 - Every puzzle is generated fresh and is guaranteed to have exactly one solution.
 - If the timer runs out, it's **game over** and you retry the level with a new puzzle.
 - Your progress is saved in the browser, so you continue where you left off. The **Reset game** button starts over from level 1.
+- Fill in a whole row, column or box correctly and it lights up with a **sweep**. The banner names lines the way you see them, so on a board turned on its side a row is called a column.
 - Mochi the cat keeps you company — and taunts you, and occasionally shoves the board.
 - Available in English and Danish (toggle in the game).
 

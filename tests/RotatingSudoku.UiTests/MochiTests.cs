@@ -40,6 +40,19 @@ public class MochiTests : SudokuTest
     }
 
     [Test]
+    public async Task MochiReactsWhenARowIsCompleted()
+    {
+        await Game.OpenAsync(new SavedGame { EmptyCells = [Cell.TopLeft, Cell.BelowTopLeft] });
+        await Game.SelectCellAsync(Cell.TopLeft);
+        await Game.WaitSecondsAsync(ReactionSeconds);
+        var rightDigit = SavedGame.SolutionAt(Cell.TopLeft);
+
+        await Game.Button(rightDigit.ToString()).ClickAsync();
+
+        await Expect(Game.MochiSpeech).ToBeVisibleAsync();
+    }
+
+    [Test]
     public async Task MochiTeasesThePlayerAfterFifteenIdleSeconds()
     {
         await Game.OpenAsync(new SavedGame());
