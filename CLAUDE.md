@@ -53,3 +53,7 @@ When adding a user-visible string, add it to **both** `en` and `da` (in `i18n.js
 ## Creative director agent
 
 `.claude/agents/creative-director.md` is a subagent that owns how engaging the game is. It preloads the project skills in `.claude/skills/`: `mochi-trash-talk`, `game-feature`, `level-design`, `playtest` and `ship-change`. The skills also work on their own in any session. Changes from the agent arrive as one pull request per idea; `main` is protected and the owner merges.
+
+## Claude Code settings
+
+`.claude/settings.json` is shared through git: it allows the routine build, test and read-only git/`gh` commands without prompting, and denies pushing to `main`, force-pushing and merging pull requests. Personal settings go in `.claude/settings.local.json`, which git ignores. Connectors such as Google Drive belong to the user's claude.ai account, not to this repo; agents without a `tools:` line inherit them.
