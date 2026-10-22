@@ -25,6 +25,10 @@ internal sealed class SudokuPage(IPage page)
     // The row of picture buttons under the board, in either language
     private ILocator Pictures => page.GetByRole(AriaRole.Group, new() { NameRegex = new Regex("^(Pictures|Billeder)$") });
 
+    public ILocator Lesson => page.GetByRole(AriaRole.Dialog, new() { Name = "How to play", Exact = true });
+    public ILocator LessonButton(string name) => Lesson.GetByRole(AriaRole.Button, new() { Name = name, Exact = true });
+    public ILocator LessonEmptyCells => Lesson.GetByRole(AriaRole.Img, new() { Name = Symbols.EmptyCell, Exact = true });
+
     // A new game starts on level 1, which has the smallest board
     public async Task OpenNewGameAsync()
     {
@@ -40,6 +44,13 @@ internal sealed class SudokuPage(IPage page)
     }
 
     public async Task ReloadAsync() => await page.ReloadAsync();
+
+    // The lesson asks for the heart, then the star and the moon
+    public async Task PlayTheLessonAsync()
+    {
+        foreach (var name in new[] { "Heart", "Star", "Moon" }) await LessonButton(name).ClickAsync();
+        await LessonButton("Let's play!").ClickAsync();
+    }
 
     // A turn starts from where the board was, so "not turned" can only be judged once any turn has finished
     public async Task WaitForTheBoardToStopTurningAsync() =>

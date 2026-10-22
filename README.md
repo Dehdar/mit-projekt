@@ -6,6 +6,7 @@ A calm sudoku with no timer and no game over, where finishing a level earns star
 
 ## Rules
 
+- **A first lesson, learnt by playing:** on a first visit, two tiny 4x4 boards show that each picture goes once in every row, column and box (the row, column and box around the empty cell light up). It can be skipped, is never scored, and can be played again from the **?** button.
 - **No timer and no game over.** Take as long as you like; a level only ends when you solve it.
 - **Pictures instead of numbers:** heart, star, moon and flower on 4x4 boards; raindrop and crown join on 6x6; gem, rainbow and unicorn complete the nine on 9x9. Every picture has its own shape, so the game works without telling colours apart. Each picture goes once in every row, column and box.
 - **The board grows with you** over 20 levels: 4x4 on levels 1–5, 6x6 (boxes two rows tall and three columns wide) on levels 6–15, and the classic 9x9 on levels 16–20. Within each size the levels give fewer pictures as you go.
@@ -46,7 +47,9 @@ rotating-sudoku/
 ├── i18n.js           English and Danish translations
 ├── sudoku.js         Pure board logic: generating, solving, checking
 ├── symbols.js        The pictures that stand for the digits (drawn from the SVG sprite in index.html)
+├── cells.js          How a board cell is drawn, shared by the game and the lesson
 ├── mascot.js         Mochi the cat
+├── lesson.js         The first lesson, learnt by playing
 ├── game.js           Game flow, stars and rendering
 ├── tests/            UI tests (.NET + Playwright, NUnit)
 ├── tools/serve.ps1   Tiny static server for local play (PowerShell 7)

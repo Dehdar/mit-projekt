@@ -226,12 +226,16 @@ const STARS = [
   { spriteId: "award-careful", labelKey: "starCareful", isEarnedWith: (oopsies) => oopsies <= CAREFUL_OOPSIES_LIMIT },
 ];
 
-// { starsByLevel: { [level]: stars } }, kept separate from the game so starting a new puzzle never touches it
+// { starsByLevel: { [level]: stars }, lessonDone }, kept separate from the game so starting a new puzzle never touches it.
+// lessonDone is null for progress saved before the lesson existed, until the start-up decides it.
 let progress = loadProgress();
 
 function loadProgress() {
   const saved = parseStoredJson(PROGRESS_KEY);
-  return { starsByLevel: validStarsByLevel(saved?.starsByLevel) };
+  return {
+    starsByLevel: validStarsByLevel(saved?.starsByLevel),
+    lessonDone: typeof saved?.lessonDone === "boolean" ? saved.lessonDone : null,
+  };
 }
 
 // Drops only the entries that make no sense, so one bad value does not cost the child every star
@@ -255,7 +259,37 @@ function bestStarsFor(level) {
 // Replaying a level can add stars but never take them away
 function keepBestStars(level, stars) {
   progress.starsByLevel[level] = Math.max(bestStarsFor(level), stars);
+  saveProgress();
+}
+
+function saveProgress() {
   writeStorage(PROGRESS_KEY, JSON.stringify(progress));
+}
+
+// ---------- First lesson ----------
+
+// Only a first visit gets the lesson. Older players have stars or a game in progress, so they skip it;
+// the answer is saved at once, so a reload in the middle of the lesson shows it again.
+function needsLesson() {
+  if (progress.lessonDone === null) {
+    progress.lessonDone = !isFirstVisit();
+    saveProgress();
+  }
+  return !progress.lessonDone;
+}
+
+function isFirstVisit() {
+  return !loadSavedGame() && Object.keys(progress.starsByLevel).length === 0;
+}
+
+function showLesson() {
+  silenceMochi();
+  openLesson(markLessonDone);
+}
+
+function markLessonDone() {
+  progress.lessonDone = true;
+  saveProgress();
 }
 
 // ---------- Rendering ----------
@@ -270,32 +304,13 @@ function createCellsOnBoard() {
   const shape = currentShape();
   boardEl.style.setProperty("--board-size", shape.size);
   cells = Array.from({ length: cellCountOf(shape) }, (_, cellIndex) => {
-    const cell = document.createElement("div");
-    cell.className = "cell";
+    const cell = createCell(shape, cellIndex);
     cell.dataset.testid = "cell";
     cell.setAttribute("role", "button");
-    cell.classList.add(...borderClassesFor(shape, cellIndex));
-    const picture = document.createElement("span");
-    picture.append(createIcon());
-    cell.append(picture);
     cell.addEventListener("click", () => selectCell(cellIndex));
     return cell;
   });
   boardEl.replaceChildren(...cells);
-}
-
-// Thick lines between the boxes, but none at the board edge, where the frame already draws one
-function borderClassesFor(shape, cellIndex) {
-  const { size, boxRows, boxColumns } = shape;
-  const lastIndex = size - 1;
-  const classes = [];
-  const column = columnOf(shape, cellIndex);
-  const row = rowOf(shape, cellIndex);
-  if (column === lastIndex) classes.push("edge-right");
-  else if ((column + 1) % boxColumns === 0) classes.push("box-right");
-  if (row === lastIndex) classes.push("edge-bottom");
-  else if ((row + 1) % boxRows === 0) classes.push("box-bottom");
-  return classes;
 }
 
 function refreshGame() {
@@ -322,8 +337,7 @@ function renderCell(cell, cellIndex, conflicts) {
   const digit = state.board[cellIndex];
   const isSelected = cellIndex === selectedCellIndex;
   const isRelated = !isSelected && selectedCellIndex !== null && isInSameRowColumnOrBox(currentShape(), cellIndex, selectedCellIndex);
-  showSymbol(cell.querySelector(".icon"), digit);
-  cell.setAttribute("aria-label", digit === EMPTY ? translate("emptyCell") : symbolNameFor(digit));
+  showCellPicture(cell, digit);
   cell.classList.toggle("given", state.puzzle[cellIndex] !== EMPTY);
   cell.classList.toggle("selected", isSelected);
   cell.classList.toggle("related", isRelated);
@@ -461,6 +475,7 @@ function numpadColumnsFor(buttonCount) {
 }
 
 function handleKeyDown(event) {
+  if (isLessonOpen()) return;
   const digit = Number(event.key);
   if (digitsOf(currentShape()).includes(digit)) enterDigit(digit);
   else if (ERASE_KEYS.includes(event.key)) enterDigit(EMPTY);
@@ -483,7 +498,10 @@ function switchLanguage() {
 document.addEventListener("keydown", handleKeyDown);
 document.getElementById("reset").addEventListener("click", confirmAndResetGame);
 document.getElementById("lang").addEventListener("click", switchLanguage);
+document.getElementById("how-to-play").addEventListener("click", showLesson);
 
 // ---------- Start ----------
 
+const isLessonNeeded = needsLesson(); // decided before the game is saved, which would end the first visit
 resumeOrStartGame();
+if (isLessonNeeded) showLesson();
