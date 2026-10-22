@@ -50,9 +50,14 @@ Classic scripts loaded in order from `index.html`, sharing globals (order matter
 
 When adding a user-visible string, add it to **both** `en` and `da` (in `i18n.js`, or `LINES` in `mascot.js`).
 
-## Creative director agent
+## Subagents
 
-`.claude/agents/creative-director.md` is a subagent that owns how engaging the game is. It preloads the project skills in `.claude/skills/`: `mochi-trash-talk`, `game-feature`, `level-design`, `playtest` and `ship-change`. The skills also work on their own in any session. Changes from the agent arrive as one pull request per idea; `main` is protected and the owner merges.
+`.claude/agents/` holds the project's subagents. Only the creative director changes code; the other three read, test or research and report:
+
+- **`creative-director`** owns how engaging the game is. It preloads the project skills in `.claude/skills/`: `mochi-trash-talk`, `game-feature`, `level-design`, `playtest` and `ship-change`. The skills also work on their own in any session. Changes from the agent arrive as one pull request per idea; `main` is protected and the owner merges.
+- **`code-reviewer`** reviews a pull request against `.claude/rules/clean-code.md` (including DRY, KISS and YAGNI) and posts its findings as review comments. It never edits, approves or merges.
+- **`manual-tester`** plays the whole game in the browser preview with the `playtest` skill and reports whether it is fully playable, with bugs ranked by severity. It never fixes code.
+- **`game-researcher`** researches the puzzle-game market and the psychology of engagement and addiction, and proposes ranked, sourced ideas, steering clear of manipulative dark patterns. It never changes the game; the creative director builds what the owner picks.
 
 ## Claude Code settings
 
