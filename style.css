@@ -1,49 +1,79 @@
+/* Rainbow Kingdom palette: pastel lavender to blush by day, a starlit navy sky by night */
 :root {
-  --bg: #f4f1ea;
+  --bg: #f3eefe;
+  --bg-end: #fff0f6;
+  --sky-stars: none;
   --panel: #ffffff;
-  --ink: #1f2430;
-  --muted: #6b7280;
-  --line: #c9ccd3;
-  --line-strong: #1f2430;
-  --entered: #2563eb;
-  --selected: #fde68a;
-  --related: #eef2f7;
-  --same: #dbeafe;
-  --conflict: #dc2626;
-  --conflict-bg: #fee2e2;
-  --accent: #2563eb;
+  --ink: #3b2a5a;
+  --muted: #7a6896;
+  --line: #ddd0f2;
+  --line-strong: #3b2a5a;
+  --selected: #ffe58f;
+  --related: #f6f0ff;
+  --same: #ffe3f1;
+  --given-tile: #ece2ff;
+  --given-edge: #a38bd6;
+  --oops: #c2410c;
+  --accent: #8b5cf6;
   --accent-ink: #ffffff;
-  --overlay: rgba(20, 22, 28, 0.6);
+  --overlay: rgba(59, 42, 90, 0.55);
   --content-width: 450px;
   /* The twirl overshoots a little and settles, like a spin that lands with a bounce */
   --rotate-duration: 1.2s;
   --rotate-easing: cubic-bezier(0.34, 1.4, 0.64, 1);
-  --sweep: #fde047;
-  --sweep-banner: #f59e0b;
-  --sweep-banner-ink: #1f2430;
+  --sweep: #fde68a;
+  --sweep-banner: #f9a8d4;
+  --sweep-banner-ink: #3b2a5a;
   --twirl-glow: #c084fc;
-  --star: #b45309;
+  --star: #d97706;
+
+  /* The pictures. Each has its own shape, so colour only helps; no two differ only by red and green. */
+  --symbol-outline: #3b2a5a;
+  --sym-heart: #f0508e;
+  --sym-star: #fcd34d;
+  --sym-moon: #9f7aea;
+  --sym-flower: #5ccf8e;
+  --sym-flower-centre: #fde68a;
+  --sym-raindrop: #4f9cf9;
+  --sym-crown: #fb923c;
+  --sym-gem: #2dd4d4;
+  --sym-unicorn: #ffffff;
+  --sym-unicorn-mane: #e9a6f5;
+  --sym-unicorn-horn: #fcd34d;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14161c;
-    --panel: #1e2129;
-    --ink: #e8eaf0;
-    --muted: #9aa1ad;
-    --line: #3a3f4b;
-    --line-strong: #c9ccd3;
-    --entered: #7aa7ff;
-    --selected: #5a4a12;
-    --related: #262a34;
-    --same: #1f3354;
-    --conflict: #f87171;
-    --conflict-bg: #3b1d1d;
-    --accent: #3b82f6;
-    --overlay: rgba(0, 0, 0, 0.65);
-    --sweep: #a16207;
+    --bg: #0f1435;
+    --bg-end: #221d55;
+    --sky-stars:
+      radial-gradient(1.5px 1.5px at 12% 18%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 78% 12%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 62% 34%, #fde68a 50%, transparent 51%),
+      radial-gradient(1px 1px at 30% 52%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 88% 66%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 8% 82%, #fde68a 50%, transparent 51%),
+      radial-gradient(1px 1px at 46% 90%, #fff 50%, transparent 51%);
+    --panel: #1c2152;
+    --ink: #f1eaff;
+    --muted: #b3a9d6;
+    --line: #343a78;
+    --line-strong: #c9b8ff;
+    --selected: #6b5a1e;
+    --related: #252b63;
+    --same: #4a2350;
+    --given-tile: #2e3576;
+    --given-edge: #8f81e0;
+    --oops: #fdba74;
+    --accent: #a78bfa;
+    --accent-ink: #1a1440;
+    --overlay: rgba(5, 7, 25, 0.7);
+    --sweep: #7c5f12;
+    --sweep-banner: #f472b6;
+    --sweep-banner-ink: #1a1440;
     --twirl-glow: #a855f7;
-    --star: #fbbf24;
+    --star: #fcd34d;
+    --symbol-outline: #14183f;
   }
 }
 
@@ -54,8 +84,27 @@
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: var(--bg);
+  min-height: 100vh;
+  background: var(--sky-stars), linear-gradient(160deg, var(--bg), var(--bg-end)) fixed;
   color: var(--ink);
+}
+
+/* The sprite only holds the drawings; cells and buttons show them with <use> */
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.icon.hidden {
+  visibility: hidden;
 }
 
 main {
@@ -118,6 +167,8 @@ h1 {
   display: grid;
   grid-template-columns: repeat(var(--board-size), 1fr);
   border: 3px solid var(--line-strong);
+  border-radius: 12px;
+  overflow: hidden;
   background: var(--panel);
   transform: rotate(calc(var(--rot) * 90deg));
   transition: transform var(--rotate-duration) var(--rotate-easing), box-shadow 0.3s ease;
@@ -140,15 +191,17 @@ h1 {
   justify-content: center;
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  /* Fewer cells means bigger cells, so the digits grow with them */
-  font-size: clamp(1rem, calc(45vw / var(--board-size)), calc(14.4rem / var(--board-size)));
-  color: var(--entered);
   cursor: pointer;
   user-select: none;
 }
 
-/* The digits rotate opposite to the board so they always stay upright */
+/* The pictures turn opposite to the board so they always stay upright */
 .cell span {
+  display: flex;
+  width: 84%;
+  height: 84%;
+  padding: 8%;
+  border-radius: 24%;
   transform: rotate(calc(var(--rot) * -90deg));
   transition: transform var(--rotate-duration) var(--rotate-easing);
 }
@@ -164,16 +217,35 @@ h1 {
 .cell.edge-bottom { border-bottom: none; }
 
 .cell.given {
-  color: var(--ink);
-  font-weight: 700;
   cursor: default;
+}
+
+/* A given picture sits on a framed tile, so it differs from the child's own pictures without colour */
+.cell.given span {
+  background: var(--given-tile);
+  box-shadow: inset 0 0 0 2px var(--given-edge);
 }
 
 .cell.related { background: var(--related); }
 .cell.same { background: var(--same); }
 .cell.selected { background: var(--selected); }
-.cell.conflict { color: var(--conflict); }
-.cell.conflict:not(.selected) { background: var(--conflict-bg); }
+/* Two of the same picture in a line: a dotted ring, never a red error mark */
+.cell.conflict {
+  outline: 3px dotted var(--oops);
+  outline-offset: -4px;
+}
+
+.cell.wobble span {
+  animation: wobble 0.5s ease-in-out;
+}
+
+@keyframes wobble {
+  0%, 100% { translate: 0; }
+  20% { translate: -8% 0; }
+  40% { translate: 7% 0; }
+  60% { translate: -5% 0; }
+  80% { translate: 3% 0; }
+}
 
 /* Overlay for level complete */
 
@@ -217,8 +289,17 @@ h1 {
 }
 
 .star {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 4px 0;
   font-weight: 700;
+}
+
+.star .icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
 }
 
 .star.earned {
@@ -261,11 +342,22 @@ button.secondary {
   gap: 8px;
 }
 
+/* Big targets for small fingers */
 #numpad button {
+  min-width: 0;
+  min-height: 60px;
+  padding: 8px;
   background: var(--panel);
   color: var(--ink);
-  font-size: 1.2rem;
-  padding: 12px 0;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  font-size: 1rem;
+}
+
+#numpad button .icon {
+  width: min(40px, 100%);
+  height: 40px;
+  margin: 0 auto;
 }
 
 /* Mochi */
@@ -472,7 +564,7 @@ header {
   .m-head, .m-look, .m-q, .m-jump, .m-lines, .m-sweat, .m-rock, .m-brow, .m-paw, .m-pop,
   .mascot-art.push, .board-wrap.shake,
   #mascot-bubble.pop,
-  .cell.swept, #sweep-banner.show, #board.twirl-soon {
+  .cell.swept, #sweep-banner.show, #board.twirl-soon, .cell.wobble span {
     animation: none;
   }
 

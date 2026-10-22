@@ -82,8 +82,8 @@ public class StarsTests : SudokuTest
 
         await SolveLastCellAsync();
 
-        await Expect(Game.Text("★ Finished the puzzle")).ToBeVisibleAsync();
-        await Expect(Game.Text("✪ Careful: 2 oopsies or fewer")).ToBeVisibleAsync();
+        await Expect(Game.Text("Finished the puzzle")).ToBeVisibleAsync();
+        await Expect(Game.Text("Careful: 2 oopsies or fewer")).ToBeVisibleAsync();
     }
 
     [Test]
@@ -95,7 +95,7 @@ public class StarsTests : SudokuTest
         await SolveLastCellAsync();
 
         await Expect(Game.Text("Du har 2 af 2 stjerner på dette level.")).ToBeVisibleAsync();
-        await Expect(Game.Text("✪ Omhyggelig: højst 2 smuttere")).ToBeVisibleAsync();
+        await Expect(Game.Text("Omhyggelig: højst 2 smuttere")).ToBeVisibleAsync();
     }
 
     // Each oops is a different wrong digit, because entering the same digit again changes nothing

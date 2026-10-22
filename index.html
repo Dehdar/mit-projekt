@@ -7,6 +7,73 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- The pictures that stand for the digits, and the star icons. Each picture has its own outline,
+       so it can be told apart without colour. Colours come from CSS variables, so the themes can change them. -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="sym-heart" viewBox="0 0 100 100">
+      <path style="fill: var(--sym-heart); stroke: var(--symbol-outline); stroke-width: 5; stroke-linejoin: round"
+        d="M50 88 C20 66 8 48 13 31 C18 14 40 11 50 28 C60 11 82 14 87 31 C92 48 80 66 50 88 Z"/>
+    </symbol>
+    <symbol id="sym-star" viewBox="0 0 100 100">
+      <polygon style="fill: var(--sym-star); stroke: var(--symbol-outline); stroke-width: 5; stroke-linejoin: round"
+        points="50,6 62,37 95,38 69,58 78,91 50,72 22,91 31,58 5,38 38,37"/>
+    </symbol>
+    <symbol id="sym-moon" viewBox="0 0 100 100">
+      <path style="fill: var(--sym-moon); stroke: var(--symbol-outline); stroke-width: 5; stroke-linejoin: round"
+        d="M58 8 A43 43 0 1 0 93 64 A34 34 0 0 1 58 8 Z"/>
+    </symbol>
+    <symbol id="sym-flower" viewBox="0 0 100 100">
+      <g style="fill: var(--sym-flower); stroke: var(--symbol-outline); stroke-width: 5">
+        <circle cx="50" cy="25" r="17"/>
+        <circle cx="74" cy="43" r="17"/>
+        <circle cx="65" cy="72" r="17"/>
+        <circle cx="35" cy="72" r="17"/>
+        <circle cx="26" cy="43" r="17"/>
+      </g>
+      <circle style="fill: var(--sym-flower-centre); stroke: var(--symbol-outline); stroke-width: 5" cx="50" cy="52" r="13"/>
+    </symbol>
+    <symbol id="sym-raindrop" viewBox="0 0 100 100">
+      <path style="fill: var(--sym-raindrop); stroke: var(--symbol-outline); stroke-width: 5; stroke-linejoin: round"
+        d="M50 6 C42 22 18 46 18 64 A32 32 0 0 0 82 64 C82 46 58 22 50 6 Z"/>
+    </symbol>
+    <symbol id="sym-crown" viewBox="0 0 100 100">
+      <path style="fill: var(--sym-crown); stroke: var(--symbol-outline); stroke-width: 5; stroke-linejoin: round"
+        d="M10 74 L14 26 L34 50 L50 16 L66 50 L86 26 L90 74 Z M10 74 L90 74 L90 90 L10 90 Z"/>
+    </symbol>
+    <symbol id="sym-gem" viewBox="0 0 100 100">
+      <g style="fill: var(--sym-gem); stroke: var(--symbol-outline); stroke-width: 5; stroke-linejoin: round">
+        <polygon points="28,14 72,14 94,40 50,92 6,40"/>
+        <polyline style="fill: none" points="6,40 94,40"/>
+        <polyline style="fill: none" points="28,14 38,40 50,92 62,40 72,14"/>
+      </g>
+    </symbol>
+    <symbol id="sym-rainbow" viewBox="0 0 100 100">
+      <g style="fill: none; stroke-linecap: butt">
+        <path style="stroke: var(--symbol-outline); stroke-width: 38" d="M24 80 A26 26 0 0 1 76 80"/>
+        <path style="stroke: var(--sym-heart); stroke-width: 10" d="M14 80 A36 36 0 0 1 86 80"/>
+        <path style="stroke: var(--sym-star); stroke-width: 10" d="M24 80 A26 26 0 0 1 76 80"/>
+        <path style="stroke: var(--sym-raindrop); stroke-width: 10" d="M34 80 A16 16 0 0 1 66 80"/>
+      </g>
+    </symbol>
+    <symbol id="sym-unicorn" viewBox="0 0 100 100">
+      <polygon style="fill: var(--sym-unicorn-horn); stroke: var(--symbol-outline); stroke-width: 4; stroke-linejoin: round"
+        points="46,26 56,2 60,26"/>
+      <path style="fill: var(--sym-unicorn); stroke: var(--symbol-outline); stroke-width: 5; stroke-linejoin: round"
+        d="M34 94 L36 62 C26 62 12 58 10 48 C8 40 16 36 24 36 L38 34 C42 26 50 22 58 22 C72 26 82 40 82 56 C82 70 78 84 76 94 Z"/>
+      <path style="fill: var(--sym-unicorn-mane); stroke: var(--symbol-outline); stroke-width: 4; stroke-linejoin: round"
+        d="M58 22 C76 22 92 38 90 58 C88 72 86 84 86 94 L76 94 C78 84 82 70 82 56 C82 40 72 26 58 22 Z"/>
+      <circle style="fill: var(--symbol-outline)" cx="36" cy="44" r="4"/>
+    </symbol>
+    <symbol id="award-finished" viewBox="0 0 100 100">
+      <polygon style="fill: currentColor" points="50,4 62,36 96,37 69,58 79,92 50,72 21,92 31,58 4,37 38,36"/>
+      <polyline style="fill: none; stroke: var(--panel); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round"
+        points="35,53 46,63 66,42"/>
+    </symbol>
+    <symbol id="award-careful" viewBox="0 0 100 100">
+      <polygon style="fill: currentColor" points="50,4 62,36 96,37 69,58 79,92 50,72 21,92 31,58 4,37 38,36"/>
+      <path style="fill: var(--panel)" d="M50 68 C38 59 33 52 35 46 C37 40 45 39 50 45 C55 39 63 40 65 46 C67 52 62 59 50 68 Z"/>
+    </symbol>
+  </svg>
   <main>
     <header>
       <div class="topbar">
@@ -158,13 +225,14 @@
       </div>
     </div>
 
-    <div id="numpad"></div>
+    <div id="numpad" role="group" data-i18n-label="pictures"></div>
     <button id="reset" class="secondary" data-i18n="reset">Reset game</button>
   </main>
   <script src="storage.js"></script>
   <script src="dom.js"></script>
   <script src="i18n.js"></script>
   <script src="sudoku.js"></script>
+  <script src="symbols.js"></script>
   <script src="mascot.js"></script>
   <script src="game.js"></script>
 </body>

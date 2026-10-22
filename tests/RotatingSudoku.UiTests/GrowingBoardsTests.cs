@@ -22,22 +22,22 @@ public class GrowingBoardsTests : SudokuTest
     }
 
     [Test]
-    public async Task AFourByFourBoardHasNumberButtonsUpToFour()
+    public async Task AFourByFourBoardHasPictureButtonsUpToTheFlower()
     {
         await Game.OpenAsync(FourByFourLevel);
 
-        await Expect(Game.Button("4")).ToBeVisibleAsync();
-        await Expect(Game.Button("5")).ToHaveCountAsync(0);
+        await Expect(Game.PictureButton("Flower")).ToBeVisibleAsync();
+        await Expect(Game.PictureButton("Raindrop")).ToHaveCountAsync(0);
     }
 
     [Test]
-    public async Task ASixBySixBoardHasThirtySixCellsAndNumberButtonsUpToSix()
+    public async Task ASixBySixBoardHasThirtySixCellsAndPictureButtonsUpToTheCrown()
     {
         await Game.OpenAsync(SixBySixLevel);
 
         await Expect(Game.Cells).ToHaveCountAsync(BoardShape.SixBySix.CellCount);
-        await Expect(Game.Button("6")).ToBeVisibleAsync();
-        await Expect(Game.Button("7")).ToHaveCountAsync(0);
+        await Expect(Game.PictureButton("Crown")).ToBeVisibleAsync();
+        await Expect(Game.PictureButton("Gem")).ToHaveCountAsync(0);
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class GrowingBoardsTests : SudokuTest
 
         await Game.TypeKeyAsync(Cell.TopLeft, "5");
 
-        await Expect(Game.CellAt(Cell.TopLeft)).ToHaveTextAsync("");
+        await Expect(Game.CellAt(Cell.TopLeft)).ToHaveAccessibleNameAsync(Symbols.EmptyCell);
     }
 
     [Test]

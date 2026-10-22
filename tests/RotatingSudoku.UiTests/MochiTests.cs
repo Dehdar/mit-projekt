@@ -33,7 +33,7 @@ public class MochiTests : SudokuTest
         await Game.WaitSecondsAsync(ReactionSeconds);
         var wrongDigit = SavedGame.SolutionAt(Cell.NextToTopLeft);
 
-        await Game.Button(wrongDigit.ToString()).ClickAsync();
+        await Game.PictureButton(Symbols.NameOf(wrongDigit)).ClickAsync();
 
         await Expect(Game.MochiSpeech).ToBeVisibleAsync();
     }
@@ -46,7 +46,7 @@ public class MochiTests : SudokuTest
         await Game.WaitSecondsAsync(ReactionSeconds);
         var rightDigit = SavedGame.SolutionAt(Cell.TopLeft);
 
-        await Game.Button(rightDigit.ToString()).ClickAsync();
+        await Game.PictureButton(Symbols.NameOf(rightDigit)).ClickAsync();
 
         await Expect(Game.MochiSpeech).ToBeVisibleAsync();
     }

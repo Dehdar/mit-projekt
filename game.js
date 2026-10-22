@@ -142,7 +142,7 @@ function selectCell(cellIndex) {
 function enterDigit(digit) {
   if (!canEditSelectedCell() || state.board[selectedCellIndex] === digit) return;
   state.board[selectedCellIndex] = digit;
-  if (isOops(digit)) state.oopsies++;
+  if (isOops(digit)) countOops();
   if (isSolved(currentShape(), state.board)) finishLevel();
   const twirled = isTwirlDue();
   if (twirled) state.twirls++;
@@ -152,6 +152,12 @@ function enterDigit(digit) {
   if (sweptUnits.length > 0) celebrateSweep(sweptUnits);
   if (twirled) playTwirl();
   mochi(mochiReactionTo(digit, { swept: sweptUnits.length > 0, twirled }));
+}
+
+// The picture wobbles so the child notices, without a red error mark
+function countOops() {
+  state.oopsies++;
+  restartAnimation(cells[selectedCellIndex], "wobble");
 }
 
 function isOops(digit) {
@@ -216,8 +222,8 @@ function playTwirl() {
 // Stars are earned in this order, so a level with n stars has the first n of them
 const CAREFUL_OOPSIES_LIMIT = 2;
 const STARS = [
-  { icon: "★", labelKey: "starFinished", isEarnedWith: () => true },
-  { icon: "✪", labelKey: "starCareful", isEarnedWith: (oopsies) => oopsies <= CAREFUL_OOPSIES_LIMIT },
+  { spriteId: "award-finished", labelKey: "starFinished", isEarnedWith: () => true },
+  { spriteId: "award-careful", labelKey: "starCareful", isEarnedWith: (oopsies) => oopsies <= CAREFUL_OOPSIES_LIMIT },
 ];
 
 // { starsByLevel: { [level]: stars } }, kept separate from the game so starting a new puzzle never touches it
@@ -267,8 +273,11 @@ function createCellsOnBoard() {
     const cell = document.createElement("div");
     cell.className = "cell";
     cell.dataset.testid = "cell";
+    cell.setAttribute("role", "button");
     cell.classList.add(...borderClassesFor(shape, cellIndex));
-    cell.append(document.createElement("span"));
+    const picture = document.createElement("span");
+    picture.append(createIcon());
+    cell.append(picture);
     cell.addEventListener("click", () => selectCell(cellIndex));
     return cell;
   });
@@ -313,7 +322,8 @@ function renderCell(cell, cellIndex, conflicts) {
   const digit = state.board[cellIndex];
   const isSelected = cellIndex === selectedCellIndex;
   const isRelated = !isSelected && selectedCellIndex !== null && isInSameRowColumnOrBox(currentShape(), cellIndex, selectedCellIndex);
-  cell.firstChild.textContent = digit || "";
+  showSymbol(cell.querySelector(".icon"), digit);
+  cell.setAttribute("aria-label", digit === EMPTY ? translate("emptyCell") : symbolNameFor(digit));
   cell.classList.toggle("given", state.puzzle[cellIndex] !== EMPTY);
   cell.classList.toggle("selected", isSelected);
   cell.classList.toggle("related", isRelated);
@@ -400,7 +410,7 @@ function renderStarList(earnedStars) {
   overlayStarsEl.replaceChildren(...STARS.map((star, index) => {
     const item = document.createElement("li");
     item.className = index < earnedStars ? "star earned" : "star missing";
-    item.textContent = `${star.icon} ${translate(star.labelKey, CAREFUL_OOPSIES_LIMIT)}`;
+    item.append(createIcon(star.spriteId), translate(star.labelKey, CAREFUL_OOPSIES_LIMIT));
     return item;
   }));
 }
@@ -424,8 +434,8 @@ function overlayScreenFor(status) {
 
 // ---------- Input ----------
 
-// The number buttons fit on one row while they are few enough to stay easy to tap
-const MOST_NUMPAD_BUTTONS_IN_ONE_ROW = 7;
+// The picture buttons fit on one row while they are few enough to stay big on a phone
+const MOST_NUMPAD_BUTTONS_IN_ONE_ROW = 5;
 
 function createNumpadButtons() {
   const buttons = [...digitsOf(currentShape()), EMPTY].map(createNumpadButton);
@@ -435,8 +445,13 @@ function createNumpadButtons() {
 
 function createNumpadButton(digit) {
   const button = document.createElement("button");
-  button.textContent = digit === EMPTY ? translate("erase") : digit;
-  if (digit === EMPTY) button.dataset.i18n = "erase";
+  if (digit === EMPTY) {
+    button.dataset.i18n = "erase";
+    button.textContent = translate("erase");
+  } else {
+    button.append(createIcon(symbolSpriteIdFor(digit)));
+    button.setAttribute("aria-label", symbolNameFor(digit));
+  }
   button.addEventListener("click", () => enterDigit(digit));
   return button;
 }
@@ -456,8 +471,11 @@ function confirmAndResetGame() {
   if (confirm(translate("resetConfirm"))) startLevel(FIRST_LEVEL);
 }
 
+// The pictures' names are read aloud, so they change language too
 function switchLanguage() {
   toggleLanguage();
+  createNumpadButtons();
+  renderBoard();
   renderOverlay();
   silenceMochi();
 }
