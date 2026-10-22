@@ -58,7 +58,7 @@ public class StarsTests : SudokuTest
     [Test]
     public async Task ReplayingALevelNeverLowersItsStars()
     {
-        await Game.OpenAsync(OneCellFromSolved with { Oopsies = CarefulOopsiesLimit + 1 }, SavedProgress.WithStars(level: 1, stars: 2));
+        await Game.OpenAsync(OneCellFromSolved with { Oopsies = CarefulOopsiesLimit + 1 }, SavedProgress.WithStars(OneCellFromSolved.Level, stars: 2));
 
         await SolveLastCellAsync();
 
@@ -68,7 +68,7 @@ public class StarsTests : SudokuTest
     [Test]
     public async Task ReplayingALevelCanRaiseItsStars()
     {
-        await Game.OpenAsync(OneCellFromSolved, SavedProgress.WithStars(level: 1, stars: 1));
+        await Game.OpenAsync(OneCellFromSolved, SavedProgress.WithStars(OneCellFromSolved.Level, stars: 1));
 
         await SolveLastCellAsync();
 

@@ -32,6 +32,26 @@ public class SweepTests : SudokuTest
     }
 
     [Test]
+    public async Task ARowTurnedOnItsSideIsAnnouncedAsAColumn()
+    {
+        await Game.OpenAsync(OneCellFromACompleteRow with { Twirls = 1 });
+
+        await FillTopLeftCorrectlyAsync();
+
+        await Expect(Game.Text("Column complete!")).ToBeVisibleAsync();
+    }
+
+    [Test]
+    public async Task AllThreeAreAnnouncedInTheSameOrderOnATurnedBoard()
+    {
+        await Game.OpenAsync(new SavedGame { Twirls = 1 });
+
+        await FillTopLeftCorrectlyAsync();
+
+        await Expect(Game.Text("Row + Column + Box complete!")).ToBeVisibleAsync();
+    }
+
+    [Test]
     public async Task AWrongDigitAnnouncesNothing()
     {
         await Game.OpenAsync(OneCellFromACompleteRow);
