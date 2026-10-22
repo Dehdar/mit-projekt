@@ -16,7 +16,7 @@ public class LevelEndTests : SudokuTest
 
         await SolveLastCellAsync();
 
-        await Expect(Game.Heading("Level 1 complete!")).ToBeVisibleAsync();
+        await Expect(Game.Heading("Level 16 complete!")).ToBeVisibleAsync();
     }
 
     [Test]
@@ -27,7 +27,7 @@ public class LevelEndTests : SudokuTest
 
         await Game.Button("Next level").ClickAsync();
 
-        await Expect(Game.Text("2 / 20")).ToBeVisibleAsync();
+        await Expect(Game.Text("17 / 20")).ToBeVisibleAsync();
     }
 
     [Test]

@@ -18,9 +18,26 @@ public sealed record BoardShape(string Name, int Size, int BoxRows, int BoxColum
         "312645",
         "645312"));
 
+    public static BoardShape NineByNine { get; } = new("NINE_BY_NINE", 9, 3, 3, ParseRows(
+        "534678912",
+        "672195348",
+        "198342567",
+        "859761423",
+        "426853791",
+        "713924856",
+        "961537284",
+        "287419635",
+        "345286179"));
+
     public static BoardShape[] Small { get; } = [FourByFour, SixBySix];
 
+    public int CellCount => Size * Size;
+
     public int CellIndex(int row, int column) => row * Size + column;
+
+    internal int IndexOf(Cell cell) => CellIndex(cell.Row, cell.Column);
+
+    internal int SolutionAt(Cell cell) => SolvedBoard[IndexOf(cell)];
 
     public override string ToString() => Name;
 

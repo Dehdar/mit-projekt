@@ -1,33 +1,61 @@
 // Rotating Sudoku: a calm sudoku with no clock and no game over. Finishing a level earns stars.
+// The board grows from 4x4 to 6x6 to 9x9, and from level 3 on it twirls a quarter turn
+// after every few correct digits.
 
-const LEVEL_COUNT = 20;
 const FIRST_LEVEL = 1;
 const SAVE_KEY = "rainbow-kingdom";
 const PROGRESS_KEY = "rainbow-kingdom-progress";
 
-const BOARD_SHAPE = BOARD_SHAPES.NINE_BY_NINE;
-const CELL_COUNT = cellCountOf(BOARD_SHAPE);
+const LANDS = Object.freeze({
+  RAINBOW_MEADOW: "rainbowMeadow",
+  CRYSTAL_LAKE: "crystalLake",
+  CLOUD_CASTLE: "cloudCastle",
+  STARLIGHT_PALACE: "starlightPalace",
+});
 
-const EASIEST_LEVEL_CLUES = 44;
-const HARDEST_LEVEL_CLUES = 24;
+// One dial changes at a time: the twirl arrives on a level with the same clues as the one before,
+// and the first level on a bigger board gets plenty of clues and a slow twirl.
+// twirlEvery is the number of correct digits between two twirls; null means the board stays still.
+const LEVELS = Object.freeze([
+  { land: LANDS.RAINBOW_MEADOW, shape: BOARD_SHAPES.FOUR_BY_FOUR, clues: 12, twirlEvery: null },
+  { land: LANDS.RAINBOW_MEADOW, shape: BOARD_SHAPES.FOUR_BY_FOUR, clues: 10, twirlEvery: null },
+  { land: LANDS.RAINBOW_MEADOW, shape: BOARD_SHAPES.FOUR_BY_FOUR, clues: 10, twirlEvery: 3 },
+  { land: LANDS.RAINBOW_MEADOW, shape: BOARD_SHAPES.FOUR_BY_FOUR, clues: 8, twirlEvery: 3 },
+  { land: LANDS.RAINBOW_MEADOW, shape: BOARD_SHAPES.FOUR_BY_FOUR, clues: 7, twirlEvery: 2 },
+  { land: LANDS.CRYSTAL_LAKE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 26, twirlEvery: 4 },
+  { land: LANDS.CRYSTAL_LAKE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 23, twirlEvery: 4 },
+  { land: LANDS.CRYSTAL_LAKE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 21, twirlEvery: 4 },
+  { land: LANDS.CRYSTAL_LAKE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 19, twirlEvery: 3 },
+  { land: LANDS.CRYSTAL_LAKE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 18, twirlEvery: 3 },
+  { land: LANDS.CLOUD_CASTLE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 17, twirlEvery: 3 },
+  { land: LANDS.CLOUD_CASTLE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 16, twirlEvery: 3 },
+  { land: LANDS.CLOUD_CASTLE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 15, twirlEvery: 3 },
+  { land: LANDS.CLOUD_CASTLE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 14, twirlEvery: 3 },
+  { land: LANDS.CLOUD_CASTLE, shape: BOARD_SHAPES.SIX_BY_SIX, clues: 14, twirlEvery: 2 },
+  { land: LANDS.STARLIGHT_PALACE, shape: BOARD_SHAPES.NINE_BY_NINE, clues: 46, twirlEvery: 6 },
+  { land: LANDS.STARLIGHT_PALACE, shape: BOARD_SHAPES.NINE_BY_NINE, clues: 42, twirlEvery: 6 },
+  { land: LANDS.STARLIGHT_PALACE, shape: BOARD_SHAPES.NINE_BY_NINE, clues: 38, twirlEvery: 5 },
+  { land: LANDS.STARLIGHT_PALACE, shape: BOARD_SHAPES.NINE_BY_NINE, clues: 34, twirlEvery: 5 },
+  { land: LANDS.STARLIGHT_PALACE, shape: BOARD_SHAPES.NINE_BY_NINE, clues: 30, twirlEvery: 4 },
+]);
+const LEVEL_COUNT = LEVELS.length;
 
 const STATUS = Object.freeze({ PLAYING: "playing", WON: "won", FINISHED: "finished" });
 const ERASE_KEYS = ["Backspace", "Delete", "0"];
 
-// Difficulty slides evenly from the first to the last level
 function levelSettings(level) {
-  const share = (level - FIRST_LEVEL) / (LEVEL_COUNT - FIRST_LEVEL);
-  return { clues: Math.round(interpolate(EASIEST_LEVEL_CLUES, HARDEST_LEVEL_CLUES, share)) };
+  return LEVELS[level - FIRST_LEVEL];
 }
 
-function interpolate(from, to, share) {
-  return from + (to - from) * share;
+function currentShape() {
+  return levelSettings(state.level).shape;
 }
 
 // ---------- Game state ----------
 
-// { level, puzzle, solution, board, oopsies, wandsUsed, status }. Saved as JSON, so the keys must not be renamed.
+// { level, puzzle, solution, board, oopsies, wandsUsed, twirls, status }. Saved as JSON, so the keys must not be renamed.
 // wandsUsed is reserved for the magic wand hint and stays 0 until it exists.
+// twirls is how many quarter turns the board has made on this level.
 let state = null;
 let selectedCellIndex = null;
 
@@ -36,7 +64,7 @@ function saveGame() {
 }
 
 function loadSavedGame() {
-  const saved = parseStoredJson(SAVE_KEY);
+  const saved = withMissingTwirlsCounted(parseStoredJson(SAVE_KEY));
   return isValidSave(saved) ? saved : null;
 }
 
@@ -48,12 +76,18 @@ function parseStoredJson(key) {
   }
 }
 
+// Saves from before the twirl have no twirls, and their board never turned
+function withMissingTwirlsCounted(saved) {
+  return saved && saved.twirls === undefined ? { ...saved, twirls: 0 } : saved;
+}
+
 function isValidSave(saved) {
-  return Boolean(saved) &&
-    isLevel(saved.level) &&
-    [saved.puzzle, saved.solution, saved.board].every(isFullBoard) &&
+  if (!saved || !isLevel(saved.level)) return false;
+  const cellCount = cellCountOf(levelSettings(saved.level).shape);
+  return [saved.puzzle, saved.solution, saved.board].every((board) => isBoardOfSize(board, cellCount)) &&
     isCount(saved.oopsies) &&
     isCount(saved.wandsUsed) &&
+    isCount(saved.twirls) &&
     Object.values(STATUS).includes(saved.status);
 }
 
@@ -61,8 +95,8 @@ function isLevel(value) {
   return Number.isInteger(value) && value >= FIRST_LEVEL && value <= LEVEL_COUNT;
 }
 
-function isFullBoard(board) {
-  return Array.isArray(board) && board.length === CELL_COUNT;
+function isBoardOfSize(board, cellCount) {
+  return Array.isArray(board) && board.length === cellCount;
 }
 
 function isCount(value) {
@@ -70,12 +104,13 @@ function isCount(value) {
 }
 
 function startLevel(level) {
-  const puzzle = makePuzzle(BOARD_SHAPE, levelSettings(level).clues);
-  const solution = solvePuzzle(BOARD_SHAPE, puzzle);
-  state = { level, puzzle, solution, board: [...puzzle], oopsies: 0, wandsUsed: 0, status: STATUS.PLAYING };
+  const { shape, clues } = levelSettings(level);
+  const puzzle = makePuzzle(shape, clues);
+  const solution = solvePuzzle(shape, puzzle);
+  state = { level, puzzle, solution, board: [...puzzle], oopsies: 0, wandsUsed: 0, twirls: 0, status: STATUS.PLAYING };
   selectedCellIndex = null;
   saveGame();
-  refreshGame();
+  showLevel();
   mochi("start");
 }
 
@@ -86,8 +121,15 @@ function resumeOrStartGame() {
     return;
   }
   state = saved;
-  refreshGame();
+  showLevel();
   mochi(state.status === STATUS.PLAYING ? "start" : state.status);
+}
+
+// A new level may have a different board size, so the cells and number buttons are built for it
+function showLevel() {
+  createCellsOnBoard();
+  createNumpadButtons();
+  refreshGameWithoutAnimation();
 }
 
 function selectCell(cellIndex) {
@@ -101,12 +143,15 @@ function enterDigit(digit) {
   if (!canEditSelectedCell() || state.board[selectedCellIndex] === digit) return;
   state.board[selectedCellIndex] = digit;
   if (isOops(digit)) state.oopsies++;
-  if (isSolved(BOARD_SHAPE, state.board)) finishLevel();
+  if (isSolved(currentShape(), state.board)) finishLevel();
+  const twirled = isTwirlDue();
+  if (twirled) state.twirls++;
   saveGame();
   refreshGame();
   const sweptUnits = unitsSweptAt(selectedCellIndex);
   if (sweptUnits.length > 0) celebrateSweep(sweptUnits);
-  mochi(sweptUnits.length > 0 ? "sweep" : mochiReactionTo(digit));
+  if (twirled) playTwirl();
+  mochi(mochiReactionTo(digit, { swept: sweptUnits.length > 0, twirled }));
 }
 
 function isOops(digit) {
@@ -121,17 +166,49 @@ function finishLevel() {
 // Solving the whole level has its own celebration, so a sweep only counts mid-level
 function unitsSweptAt(cellIndex) {
   if (state.status !== STATUS.PLAYING) return [];
-  return completedUnitsThrough(BOARD_SHAPE, state.board, state.solution, cellIndex);
+  return completedUnitsThrough(currentShape(), state.board, state.solution, cellIndex);
 }
 
 function canEditSelectedCell() {
   return state.status === STATUS.PLAYING && selectedCellIndex !== null && state.puzzle[selectedCellIndex] === EMPTY;
 }
 
-function mochiReactionTo(digit) {
+// The biggest moment wins: the level ending, then a sweep, then a twirl, then the digit itself
+function mochiReactionTo(digit, { swept, twirled }) {
   if (state.status !== STATUS.PLAYING) return state.status;
+  if (swept) return "sweep";
+  if (twirled) return "rotate";
   if (digit === EMPTY) return "erase";
   return isOops(digit) ? "wrong" : "right";
+}
+
+// ---------- Twirl: a quarter turn after every few correct digits ----------
+
+// Counted from the board rather than from entries, so erasing and re-entering a digit cannot farm twirls
+function correctDigitsPlaced() {
+  return state.board.filter((digit, cellIndex) => state.puzzle[cellIndex] === EMPTY && digit === state.solution[cellIndex]).length;
+}
+
+// How many correct digits the next twirl needs, or null on a level that does not twirl
+function correctDigitsForNextTwirl() {
+  const { twirlEvery } = levelSettings(state.level);
+  return twirlEvery === null ? null : (state.twirls + 1) * twirlEvery;
+}
+
+function isTwirlDue() {
+  const needed = correctDigitsForNextTwirl();
+  return state.status === STATUS.PLAYING && needed !== null && correctDigitsPlaced() >= needed;
+}
+
+// One more correct digit and the board turns, so it glows as a warning
+function isTwirlNext() {
+  const needed = correctDigitsForNextTwirl();
+  return state.status === STATUS.PLAYING && needed !== null && correctDigitsPlaced() === needed - 1;
+}
+
+// With reduced motion the board does not spin but fades into its new position
+function playTwirl() {
+  restartAnimation(boardEl, "twirled");
 }
 
 // ---------- Stars ----------
@@ -178,30 +255,33 @@ function keepBestStars(level, stars) {
 // ---------- Rendering ----------
 
 const boardEl = document.getElementById("board");
+const numpadEl = document.getElementById("numpad");
 const overlayEl = document.getElementById("overlay");
 const overlayStarsEl = document.getElementById("overlay-stars");
-const cells = createCellsOnBoard();
+let cells = [];
 
 function createCellsOnBoard() {
-  return Array.from({ length: CELL_COUNT }, (_, cellIndex) => {
+  const shape = currentShape();
+  boardEl.style.setProperty("--board-size", shape.size);
+  cells = Array.from({ length: cellCountOf(shape) }, (_, cellIndex) => {
     const cell = document.createElement("div");
     cell.className = "cell";
     cell.dataset.testid = "cell";
-    cell.classList.add(...borderClassesFor(cellIndex));
+    cell.classList.add(...borderClassesFor(shape, cellIndex));
     cell.append(document.createElement("span"));
     cell.addEventListener("click", () => selectCell(cellIndex));
-    boardEl.append(cell);
     return cell;
   });
+  boardEl.replaceChildren(...cells);
 }
 
 // Thick lines between the boxes, but none at the board edge, where the frame already draws one
-function borderClassesFor(cellIndex) {
-  const { size, boxRows, boxColumns } = BOARD_SHAPE;
+function borderClassesFor(shape, cellIndex) {
+  const { size, boxRows, boxColumns } = shape;
   const lastIndex = size - 1;
   const classes = [];
-  const column = columnOf(BOARD_SHAPE, cellIndex);
-  const row = rowOf(BOARD_SHAPE, cellIndex);
+  const column = columnOf(shape, cellIndex);
+  const row = rowOf(shape, cellIndex);
   if (column === lastIndex) classes.push("edge-right");
   else if ((column + 1) % boxColumns === 0) classes.push("box-right");
   if (row === lastIndex) classes.push("edge-bottom");
@@ -212,18 +292,27 @@ function borderClassesFor(cellIndex) {
 function refreshGame() {
   renderBoard();
   renderStats();
+  renderTwirl();
   renderOverlay();
 }
 
+// On start and reload the board must be in place at once instead of twirling into position
+function refreshGameWithoutAnimation() {
+  boardEl.classList.add("no-anim");
+  refreshGame();
+  forceReflow(boardEl);
+  boardEl.classList.remove("no-anim");
+}
+
 function renderBoard() {
-  const conflicts = findConflicts(BOARD_SHAPE, state.board);
+  const conflicts = findConflicts(currentShape(), state.board);
   cells.forEach((cell, cellIndex) => renderCell(cell, cellIndex, conflicts));
 }
 
 function renderCell(cell, cellIndex, conflicts) {
   const digit = state.board[cellIndex];
   const isSelected = cellIndex === selectedCellIndex;
-  const isRelated = !isSelected && selectedCellIndex !== null && isInSameRowColumnOrBox(BOARD_SHAPE, cellIndex, selectedCellIndex);
+  const isRelated = !isSelected && selectedCellIndex !== null && isInSameRowColumnOrBox(currentShape(), cellIndex, selectedCellIndex);
   cell.firstChild.textContent = digit || "";
   cell.classList.toggle("given", state.puzzle[cellIndex] !== EMPTY);
   cell.classList.toggle("selected", isSelected);
@@ -238,6 +327,11 @@ function selectedDigit() {
 
 function renderStats() {
   document.getElementById("level").textContent = `${state.level} / ${LEVEL_COUNT}`;
+}
+
+function renderTwirl() {
+  boardEl.style.setProperty("--rot", state.twirls);
+  boardEl.classList.toggle("twirl-soon", isTwirlNext());
 }
 
 // ---------- Sweep: a row, column or box completed ----------
@@ -268,9 +362,9 @@ function playSweepWave(units) {
 }
 
 function showSweepBanner(units) {
-  const kinds = units.map((unit) => unit.kind);
-  kinds.sort((first, second) => UNIT_NAME_ORDER.indexOf(first) - UNIT_NAME_ORDER.indexOf(second));
-  const names = kinds.map((kind) => translate(UNIT_NAME_KEYS[kind]));
+  const visibleKinds = units.map(visibleKindOf);
+  visibleKinds.sort((first, second) => UNIT_NAME_ORDER.indexOf(first) - UNIT_NAME_ORDER.indexOf(second));
+  const names = visibleKinds.map((kind) => translate(UNIT_NAME_KEYS[kind]));
   sweepBannerEl.textContent = translate("sweep", names);
   restartAnimation(sweepBannerEl, "show");
   clearTimeout(sweepBannerTimer);
@@ -279,6 +373,14 @@ function showSweepBanner(units) {
 
 function hideSweepBanner() {
   sweepBannerEl.textContent = "";
+}
+
+// After a quarter or three-quarter turn a row runs up and down the screen,
+// so the banner names the line the way the player sees it
+function visibleKindOf(unit) {
+  const isTurnedSideways = state.twirls % 2 === 1;
+  if (!isTurnedSideways || unit.kind === "box") return unit.kind;
+  return unit.kind === "row" ? "column" : "row";
 }
 
 function renderOverlay() {
@@ -322,19 +424,30 @@ function overlayScreenFor(status) {
 
 // ---------- Input ----------
 
+// The number buttons fit on one row while they are few enough to stay easy to tap
+const MOST_NUMPAD_BUTTONS_IN_ONE_ROW = 7;
+
 function createNumpadButtons() {
-  const numpad = document.getElementById("numpad");
-  for (const digit of [...digitsOf(BOARD_SHAPE), EMPTY]) {
-    const button = document.createElement("button");
-    button.textContent = digit;
-    if (digit === EMPTY) button.dataset.i18n = "erase";
-    button.addEventListener("click", () => enterDigit(digit));
-    numpad.append(button);
-  }
+  const buttons = [...digitsOf(currentShape()), EMPTY].map(createNumpadButton);
+  numpadEl.style.setProperty("--numpad-columns", numpadColumnsFor(buttons.length));
+  numpadEl.replaceChildren(...buttons);
+}
+
+function createNumpadButton(digit) {
+  const button = document.createElement("button");
+  button.textContent = digit === EMPTY ? translate("erase") : digit;
+  if (digit === EMPTY) button.dataset.i18n = "erase";
+  button.addEventListener("click", () => enterDigit(digit));
+  return button;
+}
+
+function numpadColumnsFor(buttonCount) {
+  return buttonCount <= MOST_NUMPAD_BUTTONS_IN_ONE_ROW ? buttonCount : Math.ceil(buttonCount / 2);
 }
 
 function handleKeyDown(event) {
-  if (/^[1-9]$/.test(event.key)) enterDigit(Number(event.key));
+  const digit = Number(event.key);
+  if (digitsOf(currentShape()).includes(digit)) enterDigit(digit);
   else if (ERASE_KEYS.includes(event.key)) enterDigit(EMPTY);
 }
 
@@ -355,6 +468,4 @@ document.getElementById("lang").addEventListener("click", switchLanguage);
 
 // ---------- Start ----------
 
-createNumpadButtons();
-translatePage(); // the Erase button only exists now
 resumeOrStartGame();

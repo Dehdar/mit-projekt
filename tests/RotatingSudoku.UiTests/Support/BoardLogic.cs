@@ -2,7 +2,7 @@ using Microsoft.Playwright;
 
 namespace RotatingSudoku.UiTests.Support;
 
-// Calls the board logic in sudoku.js inside the page, for board shapes the game does not show yet
+// Calls the board logic in sudoku.js inside the page, for the rules a player cannot see directly
 internal sealed class BoardLogic(IPage page)
 {
     // Asking for no clues makes the generator remove every digit it can while keeping one solution

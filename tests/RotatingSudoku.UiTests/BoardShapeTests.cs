@@ -2,7 +2,7 @@ using RotatingSudoku.UiTests.Support;
 
 namespace RotatingSudoku.UiTests;
 
-// The game only shows 9x9 boards so far, so the smaller shapes are checked through the board logic in the page
+// A player cannot see whether a puzzle has exactly one solution, so the board logic for the smaller shapes is checked in the page
 [Parallelizable(ParallelScope.Self)]
 public class BoardShapeTests : SudokuTest
 {
