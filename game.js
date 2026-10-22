@@ -8,6 +8,9 @@ const TICK_MS = 1000;
 const SECONDS_PER_MINUTE = 60;
 const SAVE_KEY = "rotating-sudoku";
 
+const BOARD_SHAPE = BOARD_SHAPES.NINE_BY_NINE;
+const CELL_COUNT = cellCountOf(BOARD_SHAPE);
+
 const EASIEST_LEVEL = { clues: 44, minutes: 15 };
 const HARDEST_LEVEL = { clues: 24, minutes: 6 };
 const TIME_STEP_SECONDS = 30;
@@ -59,8 +62,8 @@ function isValidSave(saved) {
 
 function startLevel(level) {
   const { clues, seconds } = levelSettings(level);
-  const puzzle = makePuzzle(clues);
-  state = { level, puzzle, solution: solvePuzzle(puzzle), board: [...puzzle], timeLeft: seconds, status: STATUS.PLAYING };
+  const puzzle = makePuzzle(BOARD_SHAPE, clues);
+  state = { level, puzzle, solution: solvePuzzle(BOARD_SHAPE, puzzle), board: [...puzzle], timeLeft: seconds, status: STATUS.PLAYING };
   selectedCellIndex = null;
   saveGame();
   refreshGameWithoutAnimation();
@@ -74,7 +77,7 @@ function resumeOrStartGame() {
     return;
   }
   state = saved;
-  if (state.solution?.length !== CELL_COUNT) state.solution = solvePuzzle(state.puzzle); // older saves
+  if (state.solution?.length !== CELL_COUNT) state.solution = solvePuzzle(BOARD_SHAPE, state.puzzle); // older saves
   refreshGameWithoutAnimation();
   mochi(state.status === STATUS.PLAYING ? "start" : state.status);
 }
@@ -132,7 +135,7 @@ function selectCell(cellIndex) {
 function enterDigit(digit) {
   if (!canEditSelectedCell() || state.board[selectedCellIndex] === digit) return;
   state.board[selectedCellIndex] = digit;
-  if (isSolved(state.board)) state.status = statusAfterSolvingLevel();
+  if (isSolved(BOARD_SHAPE, state.board)) state.status = statusAfterSolvingLevel();
   saveGame();
   refreshGame();
   const sweptUnits = unitsSweptAt(selectedCellIndex);
@@ -143,7 +146,7 @@ function enterDigit(digit) {
 // Solving the whole level has its own celebration, so a sweep only counts mid-level
 function unitsSweptAt(cellIndex) {
   if (state.status !== STATUS.PLAYING) return [];
-  return completedUnitsThrough(state.board, state.solution, cellIndex);
+  return completedUnitsThrough(BOARD_SHAPE, state.board, state.solution, cellIndex);
 }
 
 function canEditSelectedCell() {
@@ -179,16 +182,17 @@ function createCellsOnBoard() {
   });
 }
 
-// Thick lines between the 3x3 boxes, but none at the board edge, where the frame already draws one
+// Thick lines between the boxes, but none at the board edge, where the frame already draws one
 function borderClassesFor(cellIndex) {
-  const lastIndex = BOARD_SIZE - 1;
+  const { size, boxRows, boxColumns } = BOARD_SHAPE;
+  const lastIndex = size - 1;
   const classes = [];
-  const column = columnOf(cellIndex);
-  const row = rowOf(cellIndex);
+  const column = columnOf(BOARD_SHAPE, cellIndex);
+  const row = rowOf(BOARD_SHAPE, cellIndex);
   if (column === lastIndex) classes.push("edge-right");
-  else if ((column + 1) % BOX_SIZE === 0) classes.push("box-right");
+  else if ((column + 1) % boxColumns === 0) classes.push("box-right");
   if (row === lastIndex) classes.push("edge-bottom");
-  else if ((row + 1) % BOX_SIZE === 0) classes.push("box-bottom");
+  else if ((row + 1) % boxRows === 0) classes.push("box-bottom");
   return classes;
 }
 
@@ -209,14 +213,14 @@ function refreshGameWithoutAnimation() {
 }
 
 function renderBoard() {
-  const conflicts = findConflicts(state.board);
+  const conflicts = findConflicts(BOARD_SHAPE, state.board);
   cells.forEach((cell, cellIndex) => renderCell(cell, cellIndex, conflicts));
 }
 
 function renderCell(cell, cellIndex, conflicts) {
   const digit = state.board[cellIndex];
   const isSelected = cellIndex === selectedCellIndex;
-  const isRelated = !isSelected && selectedCellIndex !== null && isInSameRowColumnOrBox(cellIndex, selectedCellIndex);
+  const isRelated = !isSelected && selectedCellIndex !== null && isInSameRowColumnOrBox(BOARD_SHAPE, cellIndex, selectedCellIndex);
   cell.firstChild.textContent = digit || "";
   cell.classList.toggle("given", state.puzzle[cellIndex] !== EMPTY);
   cell.classList.toggle("selected", isSelected);
@@ -335,7 +339,7 @@ function overlayScreenFor(status) {
 
 function createNumpadButtons() {
   const numpad = document.getElementById("numpad");
-  for (const digit of [...DIGITS, EMPTY]) {
+  for (const digit of [...digitsOf(BOARD_SHAPE), EMPTY]) {
     const button = document.createElement("button");
     button.textContent = digit;
     if (digit === EMPTY) button.dataset.i18n = "erase";
