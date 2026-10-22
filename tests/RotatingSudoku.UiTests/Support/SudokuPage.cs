@@ -16,9 +16,9 @@ internal sealed class SudokuPage(IPage page)
 
     public async Task OpenNewGameAsync() => await page.GotoAsync(GameLocation.IndexUrl);
 
-    public async Task OpenAsync(SavedGame savedGame)
+    public async Task OpenAsync(params ISavedData[] saves)
     {
-        await page.AddInitScriptAsync(savedGame.ToInitScript());
+        await page.AddInitScriptAsync(StorageSeed.InitScriptFor(saves));
         await page.GotoAsync(GameLocation.IndexUrl);
     }
 

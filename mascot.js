@@ -1,10 +1,8 @@
 // Mochi, the cat who teases you while you play.
 // She is curious while you look, shocked when you get it right,
-// and talks trash when you make mistakes or are too slow.
+// and talks trash when you make mistakes.
 // Sometimes she gives the board a shove so it shakes.
 
-const IDLE_LIMIT_SECONDS = 15;
-const IDLE_CHECK_INTERVAL_MS = 1000;
 const REACTION_DURATION_MS = 3500;
 const PUSH_CHANCE = 0.3;
 const COMMENT_CHANCE = 0.5;
@@ -12,9 +10,8 @@ const RESTING_MOOD = "curious";
 
 // Events that happen so often that she only comments on some of them
 const FREQUENT_EVENTS = ["select", "rotate"];
-const PROVOKING_EVENTS = ["slow", "wrong"];
-const PLAYER_ACTION_EVENTS = ["right", "sweep", "wrong", "erase", "start"];
-const GAME_OVER_EVENTS = ["won", "finished", "lost"];
+const PROVOKING_EVENTS = ["wrong"];
+const GAME_OVER_EVENTS = ["won", "finished"];
 
 const LINES = {
   da: {
@@ -27,15 +24,6 @@ const LINES = {
       "Jeg så det. Alle så det.",
       "Den tæller vi som en øvelse.",
       "Sikke en flot fejl. Skal den indrammes?",
-    ],
-    slow: [
-      "Hallo? Er du faldet i søvn?",
-      "Tik tak, tik tak...",
-      "Jeg kunne have taget tre lure nu.",
-      "Tænker du, eller er det bare buffering?",
-      "Jeg keder mig. Underhold mig.",
-      "Det er et tal fra 1 til 9. Det er ikke raketvidenskab.",
-      "Tag din tid. Altså, du har ikke så meget af den.",
     ],
     push: [
       "Ups. Min pote smuttede.",
@@ -85,11 +73,6 @@ const LINES = {
       "Fint. Næste level knækker dig.",
     ],
     finished: ["Alle 20 levels?! Jeg... har ingen ord. Næsten."],
-    lost: [
-      "Tiden er gået! Jeg sagde jo, du var for langsom.",
-      "Game over. Jeg har aldrig været gladere.",
-      "Det gik jo præcis, som jeg forudså.",
-    ],
     start: [
       "Nyt bræt. Jeg glæder mig til at se dig fejle.",
       "Klar? Jeg holder øje med dig.",
@@ -105,15 +88,6 @@ const LINES = {
       "I saw that. Everyone saw that.",
       "Let's call that one practice.",
       "What a lovely mistake. Should I frame it?",
-    ],
-    slow: [
-      "Hello? Did you fall asleep?",
-      "Tick tock, tick tock...",
-      "I could have taken three naps by now.",
-      "Are you thinking, or just buffering?",
-      "I'm bored. Entertain me.",
-      "It's a number from 1 to 9. It's not rocket science.",
-      "Take your time. Well, you don't have much of it.",
     ],
     push: [
       "Oops. My paw slipped.",
@@ -163,11 +137,6 @@ const LINES = {
       "Fine. The next level will break you.",
     ],
     finished: ["All 20 levels?! I... have no words. Almost."],
-    lost: [
-      "Time's up! I told you you were too slow.",
-      "Game over. I've never been happier.",
-      "That went exactly as I predicted.",
-    ],
     start: [
       "New board. I can't wait to watch you fail.",
       "Ready? I'm watching you.",
@@ -177,7 +146,7 @@ const LINES = {
 
 // Which face belongs to which event
 const MOODS = {
-  wrong: "trash", slow: "trash", push: "trash", erase: "trash", rotate: "trash", lost: "trash", start: "trash",
+  wrong: "trash", push: "trash", erase: "trash", rotate: "trash", start: "trash",
   right: "shocked", sweep: "shocked", won: "shocked", finished: "shocked",
   select: RESTING_MOOD,
 };
@@ -188,10 +157,9 @@ const bubbleEl = document.getElementById("mascot-bubble");
 const boardWrapEl = document.querySelector(".board-wrap");
 let lastLine = "";
 let calmDownTimer = null;
-let idleSeconds = 0;
 let isGameRunning = false;
 
-// Called from the game: "select", "right", "sweep" (a row, column or box completed), "wrong", "erase", "rotate", "start", "won", "finished", "lost"
+// Called from the game: "select", "right", "sweep" (a row, column or box completed), "wrong", "erase", "rotate", "start", "won", "finished"
 function mochi(event) {
   trackGameProgress(event);
   if (wantsToComment(event)) react(maybeEscalateToPush(event));
@@ -200,7 +168,6 @@ function mochi(event) {
 function trackGameProgress(event) {
   if (event === "start") isGameRunning = true;
   if (GAME_OVER_EVENTS.includes(event)) isGameRunning = false;
-  if (PLAYER_ACTION_EVENTS.includes(event)) idleSeconds = 0;
 }
 
 // She cannot be bothered to comment on every single click
@@ -260,13 +227,4 @@ function pushWhenClicked() {
   if (isGameRunning) mochi("push");
 }
 
-function teaseWhenIdle() {
-  if (!isGameRunning || document.hidden) return;
-  idleSeconds++;
-  if (idleSeconds < IDLE_LIMIT_SECONDS) return;
-  idleSeconds = 0;
-  mochi("slow");
-}
-
 mascotArtEl.addEventListener("click", pushWhenClicked);
-setInterval(teaseWhenIdle, IDLE_CHECK_INTERVAL_MS);

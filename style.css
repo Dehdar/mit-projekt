@@ -19,6 +19,7 @@
   --sweep: #fde047;
   --sweep-banner: #f59e0b;
   --sweep-banner-ink: #1f2430;
+  --star: #b45309;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,6 +39,7 @@
     --accent: #3b82f6;
     --overlay: rgba(0, 0, 0, 0.65);
     --sweep: #a16207;
+    --star: #fbbf24;
   }
 }
 
@@ -96,10 +98,6 @@ h1 {
   font-variant-numeric: tabular-nums;
 }
 
-.stat.warning span:last-child {
-  color: var(--conflict);
-}
-
 /* Board */
 
 .board-wrap {
@@ -138,11 +136,6 @@ h1 {
   transition: transform var(--rotate-duration) ease;
 }
 
-#board.no-anim,
-#board.no-anim .cell span {
-  transition: none;
-}
-
 .cell.box-right { border-right: 3px solid var(--line-strong); }
 .cell.box-bottom { border-bottom: 3px solid var(--line-strong); }
 .cell.edge-right { border-right: none; }
@@ -160,7 +153,7 @@ h1 {
 .cell.conflict { color: var(--conflict); }
 .cell.conflict:not(.selected) { background: var(--conflict-bg); }
 
-/* Overlay for game over and level complete */
+/* Overlay for level complete */
 
 #overlay {
   position: absolute;
@@ -190,8 +183,30 @@ h1 {
 }
 
 .overlay-box p {
-  margin: 0 0 20px;
+  margin: 0 0 12px;
   color: var(--muted);
+}
+
+#overlay-stars {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  text-align: left;
+}
+
+.star {
+  padding: 4px 0;
+  font-weight: 700;
+}
+
+.star.earned {
+  color: var(--star);
+}
+
+/* A missing star stays visible but faded, so the child sees what to aim for next time */
+.star.missing {
+  color: var(--muted);
+  opacity: 0.6;
 }
 
 /* Buttons */

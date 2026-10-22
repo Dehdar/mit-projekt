@@ -6,7 +6,6 @@ namespace RotatingSudoku.UiTests;
 public class MochiTests : SudokuTest
 {
     private const int ReactionSeconds = 4;
-    private const int IdleLimitSeconds = 15;
 
     [Test]
     public async Task MochiSpeaksWhenALevelStarts()
@@ -48,18 +47,6 @@ public class MochiTests : SudokuTest
         var rightDigit = SavedGame.SolutionAt(Cell.TopLeft);
 
         await Game.Button(rightDigit.ToString()).ClickAsync();
-
-        await Expect(Game.MochiSpeech).ToBeVisibleAsync();
-    }
-
-    [Test]
-    public async Task MochiTeasesThePlayerAfterFifteenIdleSeconds()
-    {
-        await Game.OpenAsync(new SavedGame());
-        await Game.WaitSecondsAsync(IdleLimitSeconds - 1);
-        await Expect(Game.MochiSpeech).ToBeHiddenAsync();
-
-        await Game.WaitSecondsAsync(1);
 
         await Expect(Game.MochiSpeech).ToBeVisibleAsync();
     }

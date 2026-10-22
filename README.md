@@ -1,17 +1,18 @@
 # Rotating Sudoku
 
-A fast-paced sudoku where the board rotates 90° every 10 seconds, so you constantly have to find your bearings again. Written in plain HTML, CSS and JavaScript — no frameworks, no build step, no dependencies.
+A calm sudoku with no timer and no game over, where finishing a level earns stars. (It is being rebuilt as Rainbow Kingdom Sudoku, a game for children.) Written in plain HTML, CSS and JavaScript — no frameworks, no build step, no dependencies.
 
 **▶ [Play it in your browser](https://dehdar.github.io/rotating-sudoku/)**
 
 ## Rules
 
-- The board rotates 90° clockwise every 10 seconds. The digits stay upright.
-- **20 levels** that get harder as you go: from 44 given digits and 15 minutes on level 1 down to 24 digits and 6 minutes on level 20.
+- **No timer and no game over.** Take as long as you like; a level only ends when you solve it.
+- **20 levels** that get harder as you go: from 44 given digits on level 1 down to 24 on level 20.
 - Every puzzle is generated fresh and is guaranteed to have exactly one solution.
-- If the timer runs out, it's **game over** and you retry the level with a new puzzle.
-- Your progress is saved in the browser, so you continue where you left off. The **Reset game** button starts over from level 1.
-- Fill in a whole row, column or box correctly and it lights up with a **sweep**. The banner names lines the way you see them, so on a board turned on its side a row is called a column.
+- Finishing a level earns **stars**: one for finishing, and a second "careful" star if you made 2 oopsies or fewer (an oops is a digit that is not the right answer, even if you fix it later). Replaying a level can earn more stars but never takes any away.
+- Your game and your stars are saved in the browser, so you continue where you left off. The **Reset game** button starts over from level 1 and keeps your stars.
+- Fill in a whole row, column or box correctly and it lights up with a **sweep**.
+- The board is not rotating for now; the rotation comes back as a "magic twirl" in a later update.
 - Mochi the cat keeps you company — and taunts you, and occasionally shoves the board.
 - Available in English and Danish (toggle in the game).
 
@@ -43,7 +44,7 @@ rotating-sudoku/
 ├── i18n.js           English and Danish translations
 ├── sudoku.js         Pure board logic: generating, solving, checking
 ├── mascot.js         Mochi the cat
-├── game.js           Game flow, timer, rotation and rendering
+├── game.js           Game flow, stars and rendering
 ├── tests/            UI tests (.NET + Playwright, NUnit)
 ├── tools/serve.ps1   Tiny static server for local play (PowerShell 7)
 ├── CLAUDE.md         Guidance for Claude Code

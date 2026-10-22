@@ -6,7 +6,6 @@ namespace RotatingSudoku.UiTests;
 public class SweepTests : SudokuTest
 {
     private const int AnnouncementSeconds = 2;
-    private const int RotateEverySeconds = 10;
 
     // The cell below the top-left one keeps the first column and box open,
     // so filling the top-left cell completes only the top row
@@ -26,28 +25,6 @@ public class SweepTests : SudokuTest
     public async Task CompletingARowColumnAndBoxAtOnceAnnouncesAllThree()
     {
         await Game.OpenAsync(new SavedGame());
-
-        await FillTopLeftCorrectlyAsync();
-
-        await Expect(Game.Text("Row + Column + Box complete!")).ToBeVisibleAsync();
-    }
-
-    [Test]
-    public async Task ARowTurnedOnItsSideIsAnnouncedAsAColumn()
-    {
-        await Game.OpenAsync(OneCellFromACompleteRow);
-        await Game.WaitSecondsAsync(RotateEverySeconds);
-
-        await FillTopLeftCorrectlyAsync();
-
-        await Expect(Game.Text("Column complete!")).ToBeVisibleAsync();
-    }
-
-    [Test]
-    public async Task AllThreeAreAnnouncedInTheSameOrderOnATurnedBoard()
-    {
-        await Game.OpenAsync(new SavedGame());
-        await Game.WaitSecondsAsync(RotateEverySeconds);
 
         await FillTopLeftCorrectlyAsync();
 
